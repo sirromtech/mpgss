@@ -3,14 +3,11 @@ from pathlib import Path
 import environ
 import dj_database_url
 
-env = environ.Env()
-environ.Env.read_env()
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY
-SECRET_KEY = env("DJANGO_SECRET_KEY", default="unsafe-dev-key")
-DEBUG = env.bool("DJANGO_DEBUG", default=False)
+SECRET_KEY = 'a14fcabb-36a9-4bb1-bf3c-e7d78f2dfc21'
+DEBUG = False
 
 # Render provides RENDER_EXTERNAL_HOSTNAME automatically
 RENDER_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
@@ -84,7 +81,7 @@ WSGI_APPLICATION = "gss_scheme.wsgi.application"
 # DATABASE (Render PostgreSQL)
 DATABASES = {
     "default": dj_database_url.config(
-        default=os.environ.get("DATABASE_URL"),
+        default="postgresql://mpgss_admin:ZPMatQoubfADwKXEYbJhK0NdRKPVrhKn@dpg-d5lgobh4tr6s73bulvrg-a/mpgss_db",
         conn_max_age=600,
         ssl_require=True,
     )
@@ -127,16 +124,16 @@ CACHES = {
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
-EMAIL_HOST = env("EMAIL_HOST", default="mail.privateemail.com")
-EMAIL_PORT = env.int("EMAIL_PORT", default=587)
+EMAIL_HOST = "mail.privateemail.com"
+EMAIL_PORT = 587
 
 # TLS recommended for Namecheap
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 
-EMAIL_HOST_USER = env("helpdesk@mpgss.org")          # full email address
-EMAIL_HOST_PASSWORD = env("admin@2026D")  # mailbox password
-
+EMAIL_HOST_USER = "helpdesk@mpgss.org"         # full email address
+EMAIL_HOST_PASSWORD = "admin@2026D"  # mailbox password
+DEFAULT_FROM_EMAIL = "helpdesk@mpgss.org" SERVER_EMAIL = "helpdesk@mpgss.org"
 
 # INTERNATIONALIZATION
 LANGUAGE_CODE = "en-us"
