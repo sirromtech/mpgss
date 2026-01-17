@@ -131,8 +131,8 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 
-EMAIL_HOST_USER = "helpdesk@mpgss.org"         # full email address
-EMAIL_HOST_PASSWORD = "admin@2026D"  # mailbox password
+EMAIL_HOST_USER = "notification@mpgss.org"         # full email address
+EMAIL_HOST_PASSWORD = "admin@2026"  # mailbox password
 
 # INTERNATIONALIZATION
 LANGUAGE_CODE = "en-us"

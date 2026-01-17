@@ -18,7 +18,7 @@ services:
       - key: DATABASE_URL
         fromDatabase:
           name: gss-postgres
-          property: connectionString
+          property: connectionString 
       - key: REDIS_URL
         fromService:
           name: gss-redis
@@ -32,12 +32,12 @@ services:
           name: gss-redis
           property: connectionString
       - key: EMAIL_HOST
-        value: email-smtp.ap-southeast-2.amazonaws.com
+        value: mail.privateemail.com
       - key: EMAIL_PORT
         value: "587"
-      - key: EMAIL_HOST_USER
+      - key: notification@mpgss.org
         sync: false
-      - key: EMAIL_HOST_PASSWORD
+      - key: admin@2026
         sync: false
       - key: DEFAULT_FROM_EMAIL
         value: noreply@mpgss.org
