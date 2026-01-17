@@ -133,7 +133,6 @@ EMAIL_USE_SSL = False
 
 EMAIL_HOST_USER = "helpdesk@mpgss.org"         # full email address
 EMAIL_HOST_PASSWORD = "admin@2026D"  # mailbox password
-DEFAULT_FROM_EMAIL = "helpdesk@mpgss.org" SERVER_EMAIL = "helpdesk@mpgss.org"
 
 # INTERNATIONALIZATION
 LANGUAGE_CODE = "en-us"
