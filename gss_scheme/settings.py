@@ -125,17 +125,18 @@ CACHES = {
     }
 }
 
-# EMAIL (SES via environment variables)
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = env("EMAIL_HOST", default="email-smtp.ap-southeast-2.amazonaws.com")
+
+EMAIL_HOST = env("EMAIL_HOST", default="mail.privateemail.com")
 EMAIL_PORT = env.int("EMAIL_PORT", default=587)
+
+# TLS recommended for Namecheap
 EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
 
-EMAIL_HOST_USER = env("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+EMAIL_HOST_USER = env("helpdesk@mpgss.org")          # full email address
+EMAIL_HOST_PASSWORD = env("admin@2026D")  # mailbox password
 
-DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="noreply@example.com")
-SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 # INTERNATIONALIZATION
 LANGUAGE_CODE = "en-us"
