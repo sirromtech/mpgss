@@ -159,8 +159,8 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # PDF API
-TWO_PDF_API_KEY = env("TWO_PDF_API_KEY", default="")
-TWO_PDF_API_URL = env("TWO_PDF_API_URL", default="https://api.2pdf.com/fill")
+#TWO_PDF_API_KEY = env("TWO_PDF_API_KEY", default="")
+#TWO_PDF_API_URL = env("TWO_PDF_API_URL", default="https://api.2pdf.com/fill")
 
 # CELERY
 CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
