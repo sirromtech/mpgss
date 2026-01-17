@@ -104,7 +104,7 @@ databases:
   - name: gss-postgres
     plan: starter
 
-services:
+
   - type: redis
     name: gss-redis
     plan: starter
