@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>Generated PDFs</h3>
+<table class="table">
+  <thead><tr><th>ID</th><th>Type</th><th>Payment</th><th>Status</th><th>Actions</th></tr></thead>
+  <tbody>
+    {% for g in items %}
+    <tr>
+      <td>{{ g.id }}</td>
+      <td>{{ g.template.template_type }}</td>
+      <td>{{ g.payment }}</td>
+      <td>{{ g.status }}</td>
+      <td>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'finance:pdf_view' g.id %}">Open</a>
+        {% if g.status == 'READY' and g.file %}
+        <a class="btn btn-sm btn-outline-success" href="{% url 'finance:pdf_download' g.id %}">Download</a>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,102 @@
+{# templates/applications/lookup.html #}
+{% extends 'base.html' %}
+{% block title %}Find Your Legacy Record{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+      <div class="card shadow-sm">
+        <div class="card-header">
+          <h5 class="mb-0">Continuing Student Lookup</h5>
+          <small class="text-muted">Enter your name to check if you have a legacy record (2023–2025)</small>
+        </div>
+
+        <div class="card-body">
+
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags }} py-2">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+
+          <form method="post" action="{% url 'applications:lookup_legacy' %}" novalidate>
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            <div class="mb-3">
+              <label class="form-label">First name</label>
+              <input
+                type="text"
+                name="first_name"
+                value="{{ form.first_name.value|default_if_none:'' }}"
+                class="form-control"
+                required
+              >
+              <div class="text-danger small">{{ form.first_name.errors }}</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Surname</label>
+              <input
+                type="text"
+                name="surname"
+                value="{{ form.surname.value|default_if_none:'' }}"
+                class="form-control"
+                required
+              >
+              <div class="text-danger small">{{ form.surname.errors }}</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Year of study (optional)</label>
+              <input
+                type="number"
+                name="year_of_study"
+                value="{{ form.year_of_study.value|default_if_none:'' }}"
+                class="form-control"
+                min="1"
+              >
+              <div class="text-danger small">{{ form.year_of_study.errors }}</div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+              <button type="submit" class="btn btn-primary">Find my record</button>
+              <a href="{% url 'applications:create_application' %}" class="btn btn-link">Apply as new student</a>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      {% if matches %}
+        <div class="card mt-3 shadow-sm">
+          <div class="card-header">
+            <strong>Matches found</strong>
+            <small class="text-muted">Select the record that matches you</small>
+          </div>
+          <div class="list-group list-group-flush">
+            {% for m in matches %}
+              <div class="list-group-item d-flex justify-content-between align-items-start">
+                <div>
+                  <div class="fw-bold">{{ m.first_name }} {{ m.surname }}</div>
+                  <div class="small text-muted">
+                    {{ m.institution }} • {{ m.course }} • Year {{ m.year_of_study }}
+                  </div>
+                </div>
+                <div class="text-end">
+                  <form method="post" action="{% url 'applications:confirm_legacy' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="legacy_id" value="{{ m.id }}">
+                    <button type="submit" class="btn btn-sm btn-outline-primary">Select</button>
+                  </form>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+{% endblock %}

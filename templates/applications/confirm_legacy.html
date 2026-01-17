@@ -1,0 +1,62 @@
+{# templates/applications/confirm_legacy.html #}
+{% extends 'base.html' %}
+{% block title %}Confirm Legacy Record{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-9 col-lg-7">
+      <div class="card shadow-sm">
+        <div class="card-header">
+          <h5 class="mb-0">Confirm Your Legacy Record</h5>
+          <small class="text-muted">If this is your record, claim it and continue to upload your transcript and ID</small>
+        </div>
+
+        <div class="card-body">
+          {% if legacy %}
+            <dl class="row">
+              <dt class="col-sm-4">First name</dt>
+              <dd class="col-sm-8">{{ legacy.first_name }}</dd>
+
+              <dt class="col-sm-4">Surname</dt>
+              <dd class="col-sm-8">{{ legacy.surname }}</dd>
+
+              <dt class="col-sm-4">Gender</dt>
+              <dd class="col-sm-8">{{ legacy.gender }}</dd>
+
+              <dt class="col-sm-4">Institution</dt>
+              <dd class="col-sm-8">{{ legacy.institution }}</dd>
+
+              <dt class="col-sm-4">Course</dt>
+              <dd class="col-sm-8">{{ legacy.course }}</dd>
+
+              <dt class="col-sm-4">Tuition Fee</dt>
+              <dd class="col-sm-8">PGK {{ legacy.tuition_fee }}</dd>
+
+              <dt class="col-sm-4">District</dt>
+              <dd class="col-sm-8">{{ legacy.district }}</dd>
+
+              <dt class="col-sm-4">Year of Study</dt>
+              <dd class="col-sm-8">{{ legacy.year_of_study }}</dd>
+            </dl>
+
+            <form method="post">
+              {% csrf_token %}
+              <div class="mb-3">
+                <label class="form-label">I confirm this is my record</label>
+                <div>
+                  <button type="submit" class="btn btn-primary">Claim and Continue</button>
+                  <a href="{% url 'applications:lookup_legacy' %}" class="btn btn-link">Not my record</a>
+                </div>
+              </div>
+            </form>
+          {% else %}
+            <div class="alert alert-warning">No legacy record selected. Please use the lookup form.</div>
+            <a href="{% url 'applications:lookup_legacy' %}" class="btn btn-link">Back to lookup</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{# templates/institution/_approved_pool_fragment.html #}
+<div class="institution-pool">
+  <h5>Approved pool — {{ institution.name }}</h5>
+
+  <div class="table-responsive">
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th>Applicant</th>
+          <th>Course</th>
+          <th>Tuition</th>
+          <th>Paid</th>
+          <th>Outstanding</th>
+          <th>Submitted</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for app in page_obj.object_list %}
+          <tr>
+            <td>{{ app.applicant.user.get_full_name }}</td>
+            <td>{{ app.course.name }}</td>
+            <td>{{ app.tuition_fee }}</td>
+            <td>{{ app.paid_amount }}</td>
+            <td>{{ app.outstanding }}</td>
+            <td>{{ app.submission_date|date:"d M Y" }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6" class="text-muted">No approved applications</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% include "partials/pagination.html" with page_obj=page_obj %}
+</div>

@@ -1,0 +1,72 @@
+{# templates/finance/payment_detail.html #}
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Payment {{ payment.id }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1>Payment {{ payment.id }}</h1>
+
+  <table class="table table-striped">
+    <tr><th>Applicant</th><td>{{ payment.application.full_name }}</td></tr>
+    <tr><th>Institution</th><td>{{ payment.application.institution.name }}</td></tr>
+    <tr><th>Amount</th><td>PGK {{ payment.amount }}</td></tr>
+   <tr>
+  <th>Budget Vote</th>
+  <td>{{ payment.budget_vote.vote_code|default:"—" }}</td>
+</tr>
+
+    <tr><th>Status</th><td>{{ payment.get_status_display }}</td></tr>
+    <tr><th>Payment Date</th><td>{{ payment.payment_date|date:"Y-m-d" }}</td></tr>
+    <tr><th>Batch Number</th><td>{{ payment.batch_number }}</td></tr>
+    <tr><th>Vendor Code</th><td>{{ payment.vendor_code }}</td></tr>
+    <tr><th>Form 11</th><td>{{ payment.form11_identifier }}</td></tr>
+    <tr><th>Section 32 Officer</th><td>{{ payment.section_32_officer }}</td></tr>
+    <tr><th>Treasury Release Date</th><td>{{ payment.treasury_release_date|date:"Y-m-d" }}</td></tr>
+  </table>
+
+  <div class="actions">
+    {# Commit form #}
+    <form action="{% url 'finance:commit_payment' payment.id %}" method="post" style="display:inline">
+      {% csrf_token %}
+      <button class="btn btn-primary" type="submit">Commit (FF3)</button>
+    </form>
+
+    {# Mark paid form with optional inputs #}
+    <form action="{% url 'finance:mark_payment_paid' payment.id %}" method="post" style="display:inline; margin-left:8px;">
+      {% csrf_token %}
+      <label for="batch_number">Batch</label>
+      <input id="batch_number" name="batch_number" type="text" value="{{ payment.batch_number }}" style="width:120px; margin-right:6px;">
+      <label for="treasury_date">Treasury Date</label>
+      <input id="treasury_date" name="treasury_date" type="date" value="{{ payment.treasury_release_date|date:'Y-m-d' }}" style="margin-right:6px;">
+      <button class="btn btn-success" type="submit">Mark Paid (FF4)</button>
+    </form>
+
+    {# Cancel form #}
+    <form action="{% url 'finance:cancel_payment' payment.id %}" method="post" style="display:inline; margin-left:8px;">
+      {% csrf_token %}
+      <input type="hidden" name="reason" value="Cancelled via admin UI">
+      <button class="btn btn-danger" type="submit">Cancel</button>
+    </form>
+
+    {# PDF actions #}
+    <a class="btn btn-secondary" href="{% url 'finance:generate_pdf_for_payment' payment.id %}">Generate PDF</a>
+    {% if payment.generated_pdfs.exists %}
+      <a class="btn btn-link" href="{% url 'finance:pdf_list' %}?payment__id__exact={{ payment.id }}">View Generated PDFs</a>
+    {% endif %}
+  </div>
+
+  <hr>
+
+  <h3>Audit trail</h3>
+  <ul>
+    {% for log in payment.audit_logs.all %}
+      <li>{{ log.timestamp|date:"Y-m-d H:i" }} — {{ log.user.get_username|default:"System" }} — {{ log.action }} {% if log.notes %} — {{ log.notes }}{% endif %}</li>
+    {% empty %}
+      <li>No audit entries.</li>
+    {% endfor %}
+  </ul>
+
+  <p><a href="{% url 'finance:payment_list' %}">Back to payments</a></p>
+</div>
+{% endblock %}

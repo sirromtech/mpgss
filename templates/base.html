@@ -1,0 +1,385 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Gerson Solulu Scholarship{% endblock %}</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Stack+Sans+Notch&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap CSS + Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <!-- External site styles -->
+    <link rel="stylesheet" href="{% static 'css/base.css' %}" />
+    <style>
+        .page-header {
+            background-image: url("{% static 'img/header.webp' %}");
+        }
+
+        .hero-header {
+            margin-bottom: 6rem;
+            padding: 18rem 0;
+            background: url("{% static 'img/blob-top-left.png' %}"), url("{% static 'img/blob-top-right.png' %}"), url("{% static 'img/blob-bottom-left.png' %}"), url("{% static 'img/blob-bottom-right.png' %}"), url("{% static 'img/blob-center.png' %}");
+            background-position: left 0px top 0px, right 0px top 0px, left 0px bottom 0px, right 0px bottom 0px, center center, center bottom;
+            background-repeat: no-repeat;
+            background-size: auto; /* or cover/contain if needed */
+        }
+
+        .footer {
+            margin-top: 6rem;
+            padding-top: 9rem;
+            background: url("{% static 'img/bg-top.png'%}"), url("{% static 'img/map.png'%}");
+            background-position: center top, center center;
+            background-repeat: no-repeat;
+            background-color: #0d673e;
+        }
+        /* Sidebar slide animation */
+#sidebarMenu {
+  transition: margin-left 0.3s ease;
+}
+
+#sidebarMenu.collapsing {
+  margin-left: -260px;
+}
+
+#sidebarMenu.collapse:not(.show) {
+  margin-left: -260px;
+}
+
+#sidebarMenu.collapse.show {
+  margin-left: 0;
+}
+
+/* Main content shift */
+#mainContent {
+  transition: margin-left 0.3s ease;
+  margin-left: 260px;
+}
+
+#sidebarMenu.collapse:not(.show) ~ #mainContent {
+  margin-left: 0;
+}
+    /* Popup styling */
+#popup {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  border: 2px solid #333;
+  padding: 20px;
+  width: 90%;
+  max-width: 500px;
+  max-height: calc(100vh - 40px); /* avoids clipping under navbar */
+  overflow-y: auto;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+  z-index: 1055; /* higher than navbar (usually 1040–1050) */
+  border-radius: 8px;
+  font-family: Arial, sans-serif;
+}
+
+#popup h2 {
+  margin-top: 0;
+  color: #007BFF;
+}
+
+#popup ol,
+#popup ul {
+  margin-left: 20px;
+  padding-left: 0;
+}
+
+#popup button {
+  margin-top: 15px;
+  padding: 10px 16px;
+  background: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+}
+
+#popup button:hover {
+  background: #0056b3;
+}
+
+#overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1050;
+}
+
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- Desktop Social Icons (top center) -->
+    <div class="d-none d-lg-flex justify-content-center py-2">
+        <div class="social-icons d-flex gap-3">
+            <a href="https://www.facebook.com/profile.php?id=61570852064145" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://twitter.com/YourPage" target="_blank" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+            <a href="https://linkedin.com/company/YourPage" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+            <a href="https://instagram.com/YourPage" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+<nav class="navbar navbar-expand-lg sticky-top navbar-dark bg-primary shadow-sm">
+    <div class="container">
+
+        <!-- Brand -->
+        <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'applications:home' %}">
+            <img src="{% static 'img/logo.png' %}" alt="GSSS Logo"
+                 style="height:140px; max-height:100%;" class="d-inline-block align-text-top rounded-circle" />
+            <span class="fw-bold" style="color:#750108;">Online Application Portal</span>
+        </a>
+
+        <!-- Mobile Toggle -->
+        <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Nav Items -->
+        <div class="collapse navbar-collapse" id="navMain">
+            <ul class="navbar-nav ms-auto align-items-lg-center">
+
+                <!-- Public Links -->
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
+                       href="{% url 'applications:home' %}">Home</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}"
+                       href="{% url 'applications:about' %}">About</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'news_list' %}active{% endif %}"
+                       href="{% url 'applications:news_list' %}">News</a>
+                </li>
+
+                {% if user.is_authenticated %}
+
+                    {% if is_student %}
+                        {% if has_application %}
+                            <!-- Student WITH application -->
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+                                   href="{% url 'applications:user_dashboard' %}">Dashboard</a>
+                            </li>
+                        {% else %}
+                            <!-- Student WITHOUT application -->
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.resolver_match.url_name == 'apply' %}active{% endif %}"
+                                   href="{% url 'applications:apply' %}">Apply</a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+
+                    {% if is_officer %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'officer_dashboard' %}active{% endif %}"
+                               href="{% url 'applications:officer_dashboard' %}">Officer Dashboard</a>
+                        </li>
+                    {% endif %}
+
+                    {% if is_admin %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/">Admin</a>
+                        </li>
+                    {% endif %}
+
+                {% endif %}
+            </ul>
+
+            <!-- Auth Controls -->
+            <div class="d-flex align-items-center ms-lg-3 mt-3 mt-lg-0">
+
+                {% if user.is_authenticated %}
+                <div class="dropdown">
+                    <button class="btn dropdown-toggle p-0 border-0 bg-transparent" type="button"
+                            id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="position-relative" style="height: 40px; width: 40px;">
+                            {% if profile and profile.photo %}
+                                <img src="{{ profile.photo.url }}" alt="Profile"
+                                     class="rounded-circle" style="height: 40px; width: 40px; object-fit: cover;">
+                            {% else %}
+                                <img src="{% static 'img/userlogo.jpg' %}" alt="Default"
+                                     class="rounded-circle" style="height: 40px; width: 40px; object-fit: cover;">
+                            {% endif %}
+                        </div>
+                    </button>
+
+                   <ul class="dropdown-menu dropdown-menu-end mt-2 w-100 w-md-auto shadow-lg"
+    aria-labelledby="profileDropdown" style="z-index: 1050;">
+
+    <li class="px-3 py-2 text-center">
+        {% if profile and profile.photo %}
+            <img src="{{ profile.photo.url }}" alt="Profile"
+                 class="rounded-circle mb-2 img-fluid" style="max-width:60px;">
+        {% else %}
+            <img src="{% static 'img/userlogo.jpg' %}" alt="Default"
+                 class="rounded-circle mb-2 img-fluid" style="max-width:60px;">
+        {% endif %}
+        <div class="fw-bold text-wrap">{{ user.get_full_name|default:user.username }}</div>
+    </li>
+
+    <li><hr class="dropdown-divider"></li>
+
+    {% if is_student %}
+        {% if has_application %}
+            <li class="px-3 py-1">
+                <form action="{% url 'applications:user_dashboard' %}" method="get">
+                    <button type="submit" class="btn btn-sm btn-primary w-100">Dashboard</button>
+                </form>
+            </li>
+        {% else %}
+            <li class="px-3 py-1">
+                <form action="{% url 'applications:apply' %}" method="get">
+                    <button type="submit" class="btn btn-sm btn-success w-100">Apply</button>
+                </form>
+            </li>
+        {% endif %}
+    {% endif %}
+
+    {% if is_officer %}
+        <li class="px-3 py-1">
+            <form action="{% url 'applications:officer_dashboard' %}" method="get">
+                <button type="submit" class="btn btn-sm btn-info w-100">Officer Dashboard</button>
+            </form>
+        </li>
+    {% endif %}
+
+    {% if is_admin %}
+        <li class="px-3 py-1">
+            <form action="/admin/" method="get">
+                <button type="submit" class="btn btn-sm btn-dark w-100">Admin</button>
+            </form>
+        </li>
+    {% endif %}
+
+    <li class="px-3 py-1">
+        <form action="{% url 'applications:logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-danger w-100">Logout</button>
+        </form>
+    </li>
+</ul>
+
+                </div>
+
+                {% else %}
+                    <a href="{% url 'applications:login' %}" class="btn btn-login me-2">Login</a>
+                    <a href="{% url 'applications:signup' %}" class="btn btn-register">Register</a>
+                {% endif %}
+            </div>
+
+            <!-- Mobile Social Icons -->
+            <div class="d-lg-none mt-3 w-100">
+                <div class="social-icons d-flex justify-content-center gap-3">
+                    <a href="https://www.facebook.com/profile.php?id=61570852064145" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" target="_blank" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</nav>
+
+    <!-- Main Content -->
+    <main class="container-fluid py-5">
+        {% if messages %}
+        <div class="mb-4">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <!-- Footer Start -->
+    <div class="container-fluid bg-primary text-light footer wow fadeIn" data-wow-delay="0.1s">
+        <div class="container py-5 px-lg-5">
+            <div class="row g-5">
+                <!-- Contact Section -->
+                <div class="col-md-6 col-lg-3">
+                    <p class="section-title text-white h5 mb-4">Contact us today<span></span></p>
+                    <p><i class="fa fa-map-marker-alt me-3"></i>P.O Box 226, Lae, Morobe Province</p>
+                    <p><i class="fa fa-phone-alt me-3"></i>7833 4123 or 7968 3459</p>
+                    <p><i class="fa fa-envelope me-3"></i>lzonggoreng@mpgss.org</p>
+                    <p><i class="fa fa-envelope me-3"></i>helpdesk@mpgss.org</p>
+                    <div class="d-flex pt-2">
+                        <a class="btn btn-outline-light btn-social" href="https://www.facebook.com/profile.php?id=61570852064145" target="_blank">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a class="btn btn-outline-light btn-social" href="https://wa.me/67578334123" target="_blank">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                        <a class="btn btn-outline-light btn-social" href="mailto:info@mpgss.org">
+                            <i class="fa fa-envelope"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="col-md-6 col-lg-3">
+                    <p class="section-title text-white h5 mb-4">Quick Links<span></span></p>
+                    <a class="btn btn-link" href="{% url 'applications:about' %}">About Us</a>
+                    <a class="btn btn-link" href="{% url 'applications:privacy' %}">Privacy Policy</a>
+                    <a class="btn btn-link" href="{% url 'applications:terms' %}">Terms & Conditions</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Copyright -->
+        <div class="container px-lg-5">
+            <div class="copyright">
+                <div class="row">
+                    <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                        &copy; <span class="border-bottom">Gerson Solulu Scholarship Scheme</span> | All Rights Reserved {{ now|date:"Y" }}.
+                        <br>
+                        <a class="border-bottom" href="https://nathanpyamis.github.io/sirrom.github.io">Developer</a>
+                    </div>
+                    <div class="col-md-6 text-center text-md-end">
+                        <div class="footer-menu">
+                            <a href="{% url 'applications:home' %}">Home</a>
+                            <a href="{% url 'applications:faq' %}">FAQs</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer End -->
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/base.js' %}"></script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

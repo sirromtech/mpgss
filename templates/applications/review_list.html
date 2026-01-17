@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Applications to Review{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-3">📋 Applications to Review</h2>
+
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Applicant</th>
+                <th>Institution</th>
+                <th>Course</th>
+                <th>Status</th>
+                <th>Submitted</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in applications %}
+            <tr>
+                <td>{{ app.id }}</td>
+                <td>{{ app.applicant.user.get_full_name }}</td>
+                <td>{{ app.institution.name }}</td>
+                <td>{{ app.course.name }}</td>
+                <td>{{ app.get_status_display }}</td>
+                <td>{{ app.submission_date|date:"d M Y" }}</td>
+                <td>
+                    <a href="{% url 'applications:review_application' app.id %}" 
+                       class="btn btn-sm btn-success">
+                       Review
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="text-center text-muted">
+                    No applications available for review.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

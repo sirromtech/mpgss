@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}Edit Continuing Application{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h3 class="mb-1">Edit Continuing Application</h3>
+      <p class="text-muted mb-0">
+        Application #{{ application.unique_id }}{% if application.year_of_study %} • Year {{ application.year_of_study }}{% endif %}
+      </p>
+      <p class="text-muted mb-0">
+        Course: {% if application.course %}{{ application.course.name }}{% else %}—{% endif %}
+        •
+        Institution: {% if application.institution %}{{ application.institution.name }}{% else %}—{% endif %}
+      </p>
+    </div>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+
+    {# show errors from both forms #}
+    {{ profile_form.non_field_errors }}
+    {{ form.non_field_errors }}
+
+    <div class="accordion" id="continuingAccordion">
+
+      <!-- PROFILE (Editable except first_name/surname disabled in form) -->
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingProfile">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#collapseProfile" aria-expanded="true"
+                  aria-controls="collapseProfile">
+            Your Profile (Update your information)
+          </button>
+        </h2>
+
+        <div id="collapseProfile" class="accordion-collapse collapse show"
+             aria-labelledby="headingProfile" data-bs-parent="#continuingAccordion">
+          <div class="accordion-body">
+
+            <div class="row g-3">
+              <div class="col-md-6">{{ profile_form.first_name|as_crispy_field }}</div>
+              <div class="col-md-6">{{ profile_form.surname|as_crispy_field }}</div>
+
+              <div class="col-md-4">{{ profile_form.gender|as_crispy_field }}</div>
+              <div class="col-md-4">{{ profile_form.phone_number|as_crispy_field }}</div>
+              <div class="col-md-4">{{ profile_form.active_student_id|as_crispy_field }}</div>
+
+              <div class="col-md-4">{{ profile_form.origin_province|as_crispy_field }}</div>
+              <div class="col-md-4">{{ profile_form.origin_district|as_crispy_field }}</div>
+              <div class="col-md-4">{{ profile_form.origin_ward|as_crispy_field }}</div>
+
+              <div class="col-md-6">{{ profile_form.current_residential_area|as_crispy_field }}</div>
+              <div class="col-md-6">{{ profile_form.current_district|as_crispy_field }}</div>
+              <div class="col-md-6">{{ profile_form.current_llg|as_crispy_field }}</div>
+
+              <div class="col-md-12">{{ profile_form.postal_address|as_crispy_field }}</div>
+
+              <div class="col-md-6">
+                {{ profile_form.photo|as_crispy_field }}
+                <div class="form-text">Upload a clear passport-size photo (JPG/PNG). Max 10MB.</div>
+                <div id="profilePhotoPreview" class="mt-2"></div>
+              </div>
+
+              {% if profile.photo %}
+              <div class="col-md-6">
+                <div class="text-muted small mb-1">Current photo</div>
+                <img src="{{ profile.photo.url }}" class="img-thumbnail" style="max-width:220px;" alt="Profile photo">
+              </div>
+              {% endif %}
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- APPLICATION DETAILS -->
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingApp">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#collapseApp" aria-expanded="false"
+                  aria-controls="collapseApp">
+            Application Details (Transcript + ID Card)
+          </button>
+        </h2>
+
+        <div id="collapseApp" class="accordion-collapse collapse"
+             aria-labelledby="headingApp" data-bs-parent="#continuingAccordion">
+          <div class="accordion-body">
+
+            <div class="row g-3">
+
+              <!-- Institution/Course are set from lookup: READ-ONLY -->
+              <div class="col-md-6">
+                <label class="form-label">Institution</label>
+                <input class="form-control"
+                       value="{% if application.institution %}{{ application.institution.name }}{% else %}-{% endif %}"
+                       readonly>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Course</label>
+                <input class="form-control"
+                       value="{% if application.course %}{{ application.course.name }}{% else %}-{% endif %}"
+                       readonly>
+              </div>
+
+              <div class="col-md-4">
+                {{ form.year_of_study|as_crispy_field }}
+              </div>
+
+              <hr class="mt-4">
+
+              <h5 class="mt-2 mb-0">Required Documents</h5>
+
+              <div class="col-md-6">
+                {{ form.transcript|as_crispy_field }}
+                <div class="form-text">Upload your latest transcript (PDF/JPG/PNG). Max 10MB.</div>
+                <div id="transcriptPreview" class="mt-2"></div>
+              </div>
+
+              <div class="col-md-6">
+                {{ form.id_card|as_crispy_field }}
+                <div class="form-text">Upload student ID (PDF/JPG/PNG). Max 10MB.</div>
+                <div id="idCardPreview" class="mt-2"></div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="mt-4 d-flex gap-2">
+      <button type="submit" class="btn btn-primary">Save Changes</button>
+      <a href="{% url 'applications:continuing_dashboard' %}" class="btn btn-secondary">Cancel</a>
+
+      {% if application.has_edited %}
+        <span class="ms-auto text-muted small align-self-center">Editing already used.</span>
+      {% else %}
+        <span class="ms-auto text-muted small align-self-center">You can edit only once.</span>
+      {% endif %}
+    </div>
+
+  </form>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  function previewFile(input, previewId) {
+    const file = input.files && input.files[0];
+    const target = document.getElementById(previewId);
+    if (!file || !target) return;
+
+    const url = URL.createObjectURL(file);
+
+    if (file.type === "application/pdf") {
+      target.innerHTML = `<embed src="${url}" type="application/pdf" width="100%" height="320px" />`;
+    } else if (file.type && file.type.startsWith("image/")) {
+      target.innerHTML = `<img src="${url}" class="img-thumbnail" style="max-width:220px;" alt="Preview">`;
+    } else {
+      target.innerHTML = `<div class="text-muted small">Selected: ${file.name}</div>`;
+    }
+  }
+
+  const transcriptInput = document.getElementById("id_transcript");
+  const idCardInput = document.getElementById("id_id_card");
+  const photoInput = document.getElementById("id_photo");
+
+  if (transcriptInput) transcriptInput.addEventListener("change", () => previewFile(transcriptInput, "transcriptPreview"));
+  if (idCardInput) idCardInput.addEventListener("change", () => previewFile(idCardInput, "idCardPreview"));
+  if (photoInput) photoInput.addEventListener("change", () => previewFile(photoInput, "profilePhotoPreview"));
+});
+</script>
+{% endblock %}

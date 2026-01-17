@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Officer View Profile{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="alert alert-info">
+    This page is deprecated. Please use the officer application review page.
+  </div>
+
+  <a class="btn btn-primary" href="{% url 'applications:officer_application_detail' application.pk %}">
+    Go to Application Review
+  </a>
+</div>
+{% endblock %}

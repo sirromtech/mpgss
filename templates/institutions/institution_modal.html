@@ -1,0 +1,76 @@
+<h5 class="fw-bold">{{ institution.name }}</h5>
+
+<!-- 📞 Contact Info -->
+<div class="mb-3">
+  <p><strong>Email:</strong> {{ institution.email|default:"—" }}</p>
+  <p><strong>Phone:</strong> {{ institution.phone|default:"—" }}</p>
+</div>
+
+<!-- 📊 Summary Stats -->
+<div class="mb-3">
+  <p><strong>Total Applicants:</strong> {{ stats.total|default:0 }}</p>
+  <p><strong>✅ Approved:</strong> {{ stats.approved|default:0 }}</p>
+  <p><strong>❌ Rejected:</strong> {{ stats.rejected|default:0 }}</p>
+  <p><strong>⏳ Pending:</strong> {{ stats.pending|default:0 }}</p>
+
+  <div class="mt-2">
+    <a href="{% url 'institutions:pool_list' institution.id 'selected' %}" class="btn btn-sm btn-success me-1">
+      View Selected
+    </a>
+    <a href="{% url 'institutions:pool_list' institution.id 'pending' %}" class="btn btn-sm btn-warning me-1">
+      View Pending
+    </a>
+    <a href="{% url 'institutions:pool_list' institution.id 'rejected' %}" class="btn btn-sm btn-danger">
+      View Rejected
+    </a>
+  </div>
+</div>
+
+<!-- Course summary -->
+<div class="mb-3">
+  <p><strong>Offered courses:</strong> {{ courses|length }}</p>
+</div>
+
+<!-- 📋 Course Table -->
+<h6 class="mt-2">Offered Courses</h6>
+<table class="table table-bordered table-sm mt-2">
+  <thead class="table-light">
+    <tr>
+      <th>Course</th>
+      <th class="text-end">Total Fee (PGK)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for course in courses %}
+      <tr>
+        <td>{{ course.name }}</td>
+        <td class="text-end">
+          {% if course.total_tuition_fee is not None %}
+            {{ course.total_tuition_fee|floatformat:2 }}
+          {% else %}
+            <span class="text-muted">—</span>
+          {% endif %}
+        </td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="2" class="text-muted">No courses listed.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- Modal footer actions -->
+<div class="mt-3 d-flex justify-content-between">
+  <div>
+    <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addCourseModal" data-institution-id="{{ institution.id }}">
+      Add Course
+    </button>
+    <a href="{% url 'institutions:manage' %}" class="btn btn-outline-secondary btn-sm ms-2">Manage Institution</a>
+  </div>
+
+  <div>
+    <a href="{% url 'institutions:pool_list' institution.id 'pending' %}" class="btn btn-sm btn-link">Open full pools</a>
+    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+  </div>
+</div>

@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Officer Reviews{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+      <h3 class="mb-0">Applications to Review</h3>
+      <small class="text-muted">Filter and open an application to review documents and submit a decision.</small>
+    </div>
+
+    <div class="d-flex gap-2">
+      <a href="{% url 'applications:review_list' %}"
+         class="btn btn-sm {% if not app_type %}btn-primary{% else %}btn-outline-primary{% endif %}">
+        All
+      </a>
+      <a href="{% url 'applications:review_list' %}?type=new"
+         class="btn btn-sm {% if app_type == 'new' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+        New
+      </a>
+      <a href="{% url 'applications:review_list' %}?type=continuing"
+         class="btn btn-sm {% if app_type == 'continuing' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+        Continuing
+      </a>
+    </div>
+  </div>
+
+  {% if applications %}
+    <div class="card shadow-sm">
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th style="width:90px;">Photo</th>
+              <th>Student</th>
+              <th>Type</th>
+              <th>Institution / Course</th>
+              <th>Status</th>
+              <th>Submitted</th>
+              <th style="width:120px;"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for app in applications %}
+              {% with profile=app.applicant %}
+              <tr>
+                <td>
+                  {% if app.face_photo %}
+                    <img src="{{ app.face_photo.url }}" class="rounded-circle"
+                         style="width:56px;height:56px;object-fit:cover;" alt="Photo">
+                  {% elif profile.photo %}
+                    <img src="{{ profile.photo.url }}" class="rounded-circle"
+                         style="width:56px;height:56px;object-fit:cover;" alt="Photo">
+                  {% else %}
+                    <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center"
+                         style="width:56px;height:56px;">
+                      <strong>{{ profile.first_name|default:profile.user.first_name|slice:":1" }}</strong>
+                    </div>
+                  {% endif %}
+                </td>
+
+                <td>
+                  <div class="fw-semibold">
+                    {{ profile.first_name }} {{ profile.surname }}
+                  </div>
+                  <div class="text-muted small">{{ profile.user.email }}</div>
+                  <div class="text-muted small">App ID: {{ app.unique_id }}</div>
+                </td>
+
+                <td>
+                  {% if app.is_continuing %}
+                    <span class="badge bg-info text-dark">Continuing</span>
+                    <div class="text-muted small">Year: {{ app.year_of_study|default:"—" }}</div>
+                  {% else %}
+                    <span class="badge bg-primary">New</span>
+                  {% endif %}
+                </td>
+
+                <td>
+                  <div class="fw-semibold">
+                    {% if app.institution %}{{ app.institution.name }}{% else %}—{% endif %}
+                  </div>
+                  <div class="text-muted small">
+                    {% if app.course %}{{ app.course.name }}{% else %}—{% endif %}
+                  </div>
+                </td>
+
+                <td>
+                  {% if app.status == 'APPROVED' %}
+                    <span class="badge bg-success">Approved</span>
+                  {% elif app.status == 'REJECTED' %}
+                    <span class="badge bg-danger">Rejected</span>
+                  {% else %}
+                    <span class="badge bg-warning text-dark">Pending</span>
+                  {% endif %}
+                </td>
+
+                <td class="text-muted">
+                  {% if app.submission_date %}
+                    {{ app.submission_date|date:"d M Y" }}
+                  {% else %}
+                    —
+                  {% endif %}
+                </td>
+
+                <td class="text-end">
+                  <a href="{% url 'applications:officer_application_detail' app.pk %}"
+                     class="btn btn-sm btn-outline-primary">
+                    Open
+                  </a>
+                </td>
+              </tr>
+              {% endwith %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% else %}
+    <div class="card shadow-sm">
+      <div class="card-body text-muted text-center">
+        No applications found for this filter.
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

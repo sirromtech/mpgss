@@ -1,0 +1,58 @@
+{% load static %}
+{% load widget_tweaks %}
+{% load crispy_forms_tags %}
+{% load socialaccount %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Register - GSSS Portal{% endblock %}</title>
+
+    <!-- Bootstrap CSS (via CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-light">
+    {% block content %}
+    <div class="container-fluid min-vh-100 d-flex align-items-center bg-light">
+        <div class="row w-100 justify-content-center align-items-center">
+
+            <!-- Left column: Branding -->
+            <div class="col-lg-6 text-center text-lg-start mb-4 mb-lg-0">
+                <img src="{% static 'img/logo.png' %}" alt="Scholarship Logo" class="img-fluid mb-3" style="max-width: 300px;">
+                <h1 class="fw-bold text-primary">Scholarship Portal</h1>
+                <p class="lead text-dark">Join the community and start your scholarship application today.</p>
+            </div>
+
+            <!-- Right column: Signup card -->
+            <div class="col-lg-4">
+                <div class="card shadow-lg border-0">
+                    <div class="card-body p-4">
+                        <h2 class="text-center mb-4">Create New Account</h2>
+                        <form method="post">
+                            {% csrf_token %}
+                            {{ crispy_form|crispy }}
+                            <button type="submit" class="btn btn-success w-100 mt-3">Register</button>
+                        </form>
+
+                        <hr class="my-4">
+
+
+
+                        <p class="mt-4 text-center">
+                            Already have an account?
+                            <a href="{% url 'applications:login' %}">Login here</a>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    {% endblock %}
+    <!-- Bootstrap JS (via CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

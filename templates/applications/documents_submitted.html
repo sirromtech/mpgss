@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Documents Submitted{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow-sm mx-auto" style="max-width:640px;">
+    <div class="card-body text-center p-4">
+      <h3 class="mb-2">✅ Documents Submitted Successfully</h3>
+      <p class="text-muted mb-4">
+        Thank you. Your documents have been received and your application is now queued for review.
+        A confirmation email has been sent to your email address.
+      </p>
+
+      <div class="d-flex justify-content-center gap-2">
+        <a href="{% url 'applications:user_dashboard' %}" class="btn btn-primary">
+          Go to Dashboard
+        </a>
+        <a href="{% url 'applications:apply' %}" class="btn btn-outline-secondary">
+          Back to Apply
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

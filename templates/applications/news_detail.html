@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ news.title }}-Gerson Solulu Scholarship{% endblock %}
+
+{% block content %}
+<div class="container">
+    <article class="mb-4">
+        <header class="mb-3 news">
+            <h1 class="h2">{{ news.title }}</h1>
+            <p class="text-muted mb-0">{{ news.published|date:"F j, Y" }}</p>
+        </header>
+
+        {% if news.featured_image %}
+        <img src="{{ news.featured_image.url }}" class="img-fluid rounded mb-3" alt="{{ news.title }}">
+        {% endif %}
+
+        <div class="content-news">
+            {{ news.content|safe }}
+        </div>
+
+        <div class="mt-4">
+            <a href="{% url 'applications:news_list' %}" class="btn btn-outline-muted">Back to news</a>
+        </div>
+    </article>
+</div>
+{% endblock %}

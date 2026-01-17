@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Privacy Policy - Gerson Solulu Scholarship{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <h2 class="text-center mb-4">Privacy Policy</h2>
+    <div class="bg-light p-4 rounded shadow-sm">
+        {{ privacy.content|safe }}
+    </div>
+</div>
+{% endblock %}

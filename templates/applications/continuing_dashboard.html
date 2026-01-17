@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% block title %}My Continuing Applications{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row g-4">
+    <!-- LEFT SIDEBAR -->
+    <aside class="col-12 col-md-4 col-lg-3">
+      <div class="card shadow-sm mb-3">
+        <div class="card-body text-center">
+          {% if profile.photo %}
+            <img src="{{ profile.photo.url }}" alt="{{ profile.first_name }}" 
+                 class="rounded-circle" style="width:84px;height:84px;object-fit:cover;">
+          {% else %}
+            <div class="rounded-circle bg-secondary text-white d-inline-flex align-items-center justify-content-center" 
+                 style="width:84px;height:84px;">
+              <strong>{{ profile.first_name|slice:":1" }}</strong>
+            </div>
+          {% endif %}
+
+          <h5 class="mb-0">{{ profile.first_name }} {{ profile.surname }}</h5>
+          <small class="text-muted d-block mb-2">{{ user.email }}</small>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <h6 class="mb-3">Continuing Status</h6>
+          {% if applications %}
+            <p class="mb-1"><strong>Active Student ID:</strong> {{ profile.active_student_id }}</p>
+            <p class="mb-1"><strong>Year of Study:</strong> {{ applications.0.app.year_of_study }}</p>
+            <p class="mb-1"><strong>Institution:</strong> {{ applications.0.app.institution.name }}</p>
+            <p class="mb-1"><strong>Course:</strong> {{ applications.0.app.course.name }}</p>
+          {% else %}
+            <p class="text-muted">No continuing applications yet.</p>
+          {% endif %}
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="col-12 col-md-8 col-lg-9">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+         <h3 class="mb-0">
+          Welcome back, {% if profile.first_name %}{{ profile.first_name }}
+            {% else %}
+            {{ profile.user.first_name }}
+           {% endif %}!
+            </h3>
+
+          <small class="text-muted">Here’s your continuing application summary</small>
+        </div>
+      </div>
+
+      {% if applications %}
+        {% for item in applications %}
+          {% with app=item.app documents=item.documents %}
+          <div class="card shadow-sm mb-4">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <h5 class="mb-0">Application #{{ app.unique_id }}</h5>
+                  <small class="text-muted">Submitted {{ app.submission_date|date:"d M Y" }}</small>
+                </div>
+                <div>
+                  <span class="badge 
+                    {% if app.status == 'APPROVED' %} bg-success
+                    {% elif app.status == 'REJECTED' %} bg-danger
+                    {% else %} bg-warning text-dark {% endif %} py-2 px-3">
+                    {% if app.status == 'APPROVED' %}✅ Approved
+                    {% elif app.status == 'REJECTED' %}❌ Rejected
+                    {% else %}⏳ Pending{% endif %}
+                  </span>
+                </div>
+              </div>
+
+              <hr>
+
+              <div class="row">
+                <div class="col-12 col-md-6">
+                  <h6 class="mb-2">Documents</h6>
+                  <ul class="list-unstyled mb-0">
+                    {% for label, doc in documents %}
+                      <li class="mb-1">
+                        {% if doc %}
+                          <span class="text-success">✅</span> {{ label }}
+                        {% else %}
+                          <span class="text-danger">❌</span> {{ label }}
+                        {% endif %}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <h6 class="mb-2">Payment Summary</h6>
+                  <table class="table table-sm mb-0">
+                    <tbody>
+                      <tr>
+                        <th class="p-1">Total Fee</th>
+                        <td class="p-1">PGK {{ app.course.total_tuition_fee|floatformat:2 }}</td>
+                      </tr>
+                      <tr>
+                        <th class="p-1">Paid</th>
+                        <td class="p-1">PGK {{ item.total_paid|default:"0.00" }}</td>
+                      </tr>
+                      <tr>
+                        <th class="p-1">Balance</th>
+                        <td class="p-1">PGK {{ item.balance|default:app.course.total_tuition_fee }}</td>
+                      </tr>
+                      <tr>
+                        <th class="p-1">Status</th>
+                        <td class="p-1">
+                          {% if item.payment_status == 'Fully Paid' %}
+                            <span class="text-success">✅ Fully Paid</span>
+                          {% elif item.payment_status == 'Partially Paid' %}
+                            <span class="text-warning">🟡 Partially Paid</span>
+                          {% else %}
+                            <span class="text-danger">❌ Unpaid</span>
+                          {% endif %}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <hr>
+              <!-- Edit button with one-time restriction -->
+              {% if not app.has_edited %}
+                <a href="{% url 'applications:edit_continuing_application' app.pk %}" 
+                   class="btn btn-primary btn-sm">Edit Application</a>
+              {% else %}
+                <span class="text-muted">Editing disabled (already updated once)</span>
+              {% endif %}
+            </div>
+          </div>
+          {% endwith %}
+        {% endfor %}
+      {% else %}
+        <div class="card shadow-sm">
+          <div class="card-body text-center text-muted">
+            You haven’t submitted any continuing applications yet.
+          </div>
+        </div>
+      {% endif %}
+    </main>
+  </div>
+</div>
+{% endblock %}

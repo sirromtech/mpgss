@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container mt-4">
+
+  <h3 class="mb-1">
+    Continuing Application{% if application.year_of_study %} — Year {{ application.year_of_study }}{% endif %}
+  </h3>
+
+  <p class="text-muted mb-4">
+    Course: {% if application.course %}{{ application.course.name }}{% else %}—{% endif %}
+    •
+    Institution: {% if application.institution %}{{ application.institution.name }}{% else %}—{% endif %}
+  </p>
+
+  <form method="POST" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+
+    <div class="accordion" id="continuingAccordion">
+
+      <!-- PROFILE (EDITABLE) -->
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingProfile">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#collapseProfile" aria-expanded="true"
+                  aria-controls="collapseProfile">
+            Your Profile (Editable)
+          </button>
+        </h2>
+
+        <div id="collapseProfile" class="accordion-collapse collapse show"
+             aria-labelledby="headingProfile" data-bs-parent="#continuingAccordion">
+          <div class="accordion-body">
+
+            {{ profile_form.non_field_errors }}
+
+            <div class="row g-3">
+              <div class="col-md-6">{{ profile_form.first_name|as_crispy_field }}</div>
+              <div class="col-md-6">{{ profile_form.surname|as_crispy_field }}</div>
+
+              <div class="col-md-4">{{ profile_form.gender|as_crispy_field }}</div>
+              <div class="col-md-4">{{ profile_form.phone_number|as_crispy_field }}</div>
+              <div class="col-md-4">{{ profile_form.active_student_id|as_crispy_field }}</div>
+
+              <div class="col-md-4">{{ profile_form.origin_province|as_crispy_field }}</div>
+              <div class="col-md-4">{{ profile_form.origin_district|as_crispy_field }}</div>
+              <div class="col-md-4">{{ profile_form.origin_ward|as_crispy_field }}</div>
+
+              <div class="col-md-6">{{ profile_form.current_residential_area|as_crispy_field }}</div>
+              <div class="col-md-6">{{ profile_form.current_district|as_crispy_field }}</div>
+              <div class="col-md-6">{{ profile_form.current_llg|as_crispy_field }}</div>
+
+              <div class="col-md-12">{{ profile_form.postal_address|as_crispy_field }}</div>
+
+              <div class="col-md-6">
+                {{ profile_form.photo|as_crispy_field }}
+                <div class="form-text">Upload a clear passport-size photo (JPG/PNG). Max 10MB.</div>
+                <div id="profilePhotoPreview" class="mt-2"></div>
+              </div>
+
+              {% if profile.photo %}
+              <div class="col-md-6">
+                <div class="text-muted small mb-1">Current photo</div>
+                <img src="{{ profile.photo.url }}" class="img-thumbnail" style="max-width:220px;" alt="Profile photo">
+              </div>
+              {% endif %}
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- APPLICATION DETAILS (EDITABLE) -->
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingApp">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#collapseApp" aria-expanded="false"
+                  aria-controls="collapseApp">
+            Application Details
+          </button>
+        </h2>
+
+        <div id="collapseApp" class="accordion-collapse collapse"
+             aria-labelledby="headingApp" data-bs-parent="#continuingAccordion">
+          <div class="accordion-body">
+
+            {{ form.non_field_errors }}
+
+            <div class="row g-3">
+
+              <!-- Institution/Course are NOT editable (set from lookup) -->
+              <div class="col-md-6">
+                <label class="form-label">Institution</label>
+                <input class="form-control"
+                       value="{% if application.institution %}{{ application.institution.name }}{% else %}-{% endif %}"
+                       readonly>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Course</label>
+                <input class="form-control"
+                       value="{% if application.course %}{{ application.course.name }}{% else %}-{% endif %}"
+                       readonly>
+              </div>
+
+              <div class="col-md-4">
+                {{ form.year_of_study|as_crispy_field }}
+              </div>
+
+              <h5 class="mt-4">Required Documents</h5>
+
+              <div class="col-md-6">
+                {{ form.transcript|as_crispy_field }}
+                <div class="form-text">Upload your latest transcript (PDF/JPG/PNG). Max 10MB.</div>
+                <div id="transcriptPreview" class="mt-2"></div>
+              </div>
+
+              <div class="col-md-6">
+                {{ form.id_card|as_crispy_field }}
+                <div class="form-text">Upload a clear student ID (PDF/JPG/PNG). Max 10MB.</div>
+                <div id="idCardPreview" class="mt-2"></div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="mt-4 d-flex gap-2">
+      <button type="submit" class="btn btn-primary">Submit Application</button>
+      <a href="{% url 'applications:continuing_dashboard' %}" class="btn btn-link">Back to dashboard</a>
+    </div>
+
+  </form>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  function previewFile(input, previewId) {
+    const file = input.files && input.files[0];
+    const target = document.getElementById(previewId);
+    if (!file || !target) return;
+
+    const fileURL = URL.createObjectURL(file);
+
+    if (file.type === "application/pdf") {
+      target.innerHTML = `<embed src="${fileURL}" type="application/pdf" width="100%" height="360px" />`;
+    } else if (file.type && file.type.startsWith("image/")) {
+      target.innerHTML = `<img src="${fileURL}" alt="Preview" class="img-thumbnail" style="max-width:220px;">`;
+    } else {
+      target.innerHTML = `<div class="text-muted small">Selected: ${file.name}</div>`;
+    }
+  }
+
+  const transcriptInput = document.getElementById("id_transcript");
+  const idCardInput = document.getElementById("id_id_card");
+  const photoInput = document.getElementById("id_photo");
+
+  if (transcriptInput) transcriptInput.addEventListener("change", () => previewFile(transcriptInput, "transcriptPreview"));
+  if (idCardInput) idCardInput.addEventListener("change", () => previewFile(idCardInput, "idCardPreview"));
+  if (photoInput) photoInput.addEventListener("change", () => previewFile(photoInput, "profilePhotoPreview"));
+});
+</script>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <div class="alert alert-warning">
+    <h4 class="mb-2">Applications are closed</h4>
+    <p>We are not accepting applications at this time.</p>
+
+    {% if cfg.close_at %}
+      <p><strong>Closed on:</strong> {{ cfg.close_at }}</p>
+    {% endif %}
+
+    <a href="{% url 'applications:home' %}" class="btn btn-secondary mt-2">Back to Home</a>
+  </div>
+</div>
+{% endblock %}

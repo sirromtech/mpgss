@@ -1,0 +1,27 @@
+<!-- templates/applications/application_success.html -->
+{% extends 'base.html' %}
+
+{% block title %}Application Submitted{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white p-10 rounded-lg shadow-md text-center mt-10">
+    
+    <!-- Success Icon -->
+    <svg class="w-20 h-20 mx-auto text-green-500" fill="none" stroke="currentColor" 
+         viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+    </svg>
+
+    <h1 class="text-3xl font-bold text-gray-800 mt-6">Application Submitted</h1>
+    <p class="text-gray-600 mt-3">Thank you for submitting your application.</p>
+    <p class="text-gray-600">Our team will review your documents shortly.</p>
+
+    <div class="mt-8">
+        <a href="{% url 'applications:dashboard' %}" 
+           class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-300">
+            Go to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

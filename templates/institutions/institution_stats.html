@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Institution Stats{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <h2 class="text-center text-secondary mb-4">Institution Statistics</h2>
+  <div class="row g-4">
+    {% for stat in institution_stats %}
+    <div class="col-md-4">
+      <div class="bg-light p-4 rounded shadow-sm h-100">
+        <h5 class="text-dark">{{ stat.institution__name }}</h5>
+        <h3 class="text-primary">{{ stat.applicants }}</h3>
+        <p class="text-muted mb-1">Total Applicants</p>
+        <h4 class="text-success">{{ stat.awarded }}</h4>
+        <p class="text-muted">Scholarships Awarded</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

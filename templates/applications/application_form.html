@@ -1,0 +1,372 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Scholarship Application</h2>
+    <br><br>
+  <!-- Overlay -->
+ 
+
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% if app_form.errors %}
+        <div class="alert alert-danger">
+            {{ app_form.errors }}
+        </div>
+        {% endif %}
+
+        {% if profile_form.errors %}
+        <div class="alert alert-danger">
+            {{ profile_form.errors }}
+        </div>
+        {% endif %}
+
+        <div class="accordion" id="applicationAccordion">
+
+            <!-- PERSONAL INFORMATION -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingPersonal">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapsePersonal" aria-expanded="true"
+                            aria-controls="collapsePersonal">
+                        Personal Information
+                    </button>
+                </h2>
+                <div id="collapsePersonal" class="accordion-collapse collapse show"
+                     aria-labelledby="headingPersonal" data-bs-parent="#applicationAccordion">
+                    <div class="accordion-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                {{ profile_form.first_name|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ profile_form.surname|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.gender|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.date_of_birth|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ profile_form.nid_number|as_crispy_field }}
+                            </div>
+
+                            <!-- Contact & Profile -->
+                            <div class="col-md-6">
+                                {{ profile_form.phone_number|as_crispy_field }}
+                            </div>
+                            <div class="col-md-12">
+                                {{ profile_form.postal_address|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.photo|as_crispy_field }}
+                            </div>
+
+                            <!-- Education -->
+                            <div class="col-md-6">
+                                {{ profile_form.grade12_certificate_number|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ profile_form.secondary_school_name|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.year_completed_grade12|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.tesas_category|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.active_student_id|as_crispy_field }}
+                            </div>
+
+                            <div class="col-md-4">
+                                {{ profile_form.elementary_completed|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.primary_completed|as_crispy_field }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAMILY INFORMATION -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingFamily">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseFamily" aria-expanded="false"
+                            aria-controls="collapseFamily">
+                        Family Information
+                    </button>
+                </h2>
+                <div id="collapseFamily" class="accordion-collapse collapse"
+                     aria-labelledby="headingFamily" data-bs-parent="#applicationAccordion">
+                    <div class="accordion-body">
+                        <div class="row g-3">
+
+                            <h5>Father</h5>
+                            <div class="col-md-6">
+                                {{ profile_form.father_name|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ profile_form.father_occupation|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.father_nationality|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.father_province|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.father_district|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.father_llg|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.father_village|as_crispy_field }}
+                            </div>
+
+                            <div class="col-md-4">
+                                {{ profile_form.father_elementary_completed|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.father_primary_completed|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.father_highschool_completed|as_crispy_field }}
+                            </div>
+
+                            <h5 class="mt-4">Mother</h5>
+                            <div class="col-md-6">
+                                {{ profile_form.mother_name|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ profile_form.mother_occupation|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.mother_nationality|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.mother_province|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.mother_district|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.mother_llg|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.mother_village|as_crispy_field }}
+                            </div>
+
+                            <div class="col-md-4">
+                                {{ profile_form.mother_elementary_completed|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.mother_elementary_year|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.mother_primary_completed|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.mother_primary_year|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.mother_highschool_completed|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.mother_highschool_year|as_crispy_field }}
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTACT / ADDRESS INFORMATION -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingAddress">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseAddress" aria-expanded="false"
+                            aria-controls="collapseAddress">
+                        Address & Residency
+                    </button>
+                </h2>
+                <div id="collapseAddress" class="accordion-collapse collapse"
+                     aria-labelledby="headingAddress" data-bs-parent="#applicationAccordion">
+                    <div class="accordion-body">
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+                                {{ profile_form.current_residential_area|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.current_district|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.current_llg|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.duration_living_in|as_crispy_field }}
+                            </div>
+
+                            <hr class="my-3 w-100">
+
+                            <div class="col-md-4">
+                                {{ profile_form.origin_province|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.origin_district|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.origin_ward|as_crispy_field }}
+                            </div>
+
+                            <div class="col-md-4">
+                                {{ profile_form.residency_province|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.residency_district|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.residency_ward|as_crispy_field }}
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FINANCIAL INFORMATION -->
+
+
+            <!-- APPLICATION DETAILS & DOCUMENTS -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingApplication">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseApplication" aria-expanded="false"
+                            aria-controls="collapseApplication">
+                        Application Details & Documents
+                    </button>
+                </h2>
+                <div id="collapseApplication" class="accordion-collapse collapse"
+                     aria-labelledby="headingApplication" data-bs-parent="#applicationAccordion">
+                    <div class="accordion-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                {{ app_form.institution|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ app_form.course|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ app_form.year_of_study|as_crispy_field }}
+                            </div>
+
+                            <h5 class="mt-4">Required Documents</h5>
+                            <div class="col-md-6">
+                                {{ app_form.grade_12_certificate|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ app_form.transcript|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ app_form.acceptance_letter|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ app_form.school_fee_structure|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ app_form.id_card|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ app_form.character_reference_1|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ app_form.character_reference_2|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ app_form.statdec|as_crispy_field }}
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">Submit Application</button>
+        </div>
+
+    </form>
+    <div id="overlay"></div>
+
+  <!-- Popup -->
+  <div id="popup">
+    <h2>How to Apply</h2>
+    <ol>
+      <li>Access the application form online.</li>
+      <li>Fill in personal Information, Family Information, Address Information.</li>
+      <li>All documents must be certified by commisioner of oath</li>
+      <li>Upload all required documents.</li>
+      <li>Review your application carefully before submitting.</li>
+      <li>Submit the application and wait for confirmation.</li>
+      <li><strong>If you are continuing student, kindly close this window and click Apply to choose your continuing form</strong></li>
+    </ol>
+
+    <h2>Required Documents For New Applicants 2026</h2>
+    <ul>
+      <li>Two character references (<em>must have stamp, letterhead with recent date</em>)</li>
+      <li>Grade 10 & 12 certificates (<em>scan as one PDF file</em>) provide copy of the original signed by commisioner oath</li>
+      <li>Acceptance letter</li>
+      <li>School fee structure</li>
+      <li>Transcript for continuing tertiary students</li>
+      <li>Valid ID card(<em>Driver's Licence, NID, Birth Certificate</em>)</li>
+      <li>Statutory declaration</li>
+    </ul>
+    <h2>Required Documents For New Applicants 2026</h2>
+    <ul>
+        <li>Transcript(<em>has to be latest Semester 2 - 2025</em>)</li>
+        <li>School ID Card</li>
+        <li><strong>You are asked to close this window and apply, insert your first and last name, click the lookup to see if your name exists and proceed to the application form. </strong> </li>
+    </ul>
+
+    <button onclick="closePopup()">Got it!</button>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const instSelect = document.getElementById("id_institution");
+  const courseSelect = document.getElementById("id_course");
+
+  instSelect.addEventListener("change", function() {
+    const instId = this.value;
+    courseSelect.innerHTML = '<option value="">Loading courses...</option>';
+
+    if (instId) {
+      fetch(`/api/courses/?institution_id=${instId}`)
+        .then(response => response.json())
+        .then(data => {
+          courseSelect.innerHTML = '<option value="">-- Select Course --</option>';
+          data.forEach(course => {
+            courseSelect.innerHTML += `<option value="${course.id}">${course.name} (${course.code})</option>`;
+          });
+        })
+        .catch(() => {
+          courseSelect.innerHTML = '<option value="">Error loading courses</option>';
+        });
+    } else {
+      courseSelect.innerHTML = '<option value="">-- Select Course --</option>';
+    }
+  });
+});
+</script>
+
+{% endblock %}

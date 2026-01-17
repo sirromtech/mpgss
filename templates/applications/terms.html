@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Terms & Conditions - Gerson Solulu Scholarship{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <h2 class="text-center mb-4">Terms & Conditions</h2>
+    <div class="bg-light p-4 rounded shadow-sm">
+        {{ terms.content|safe }}
+    </div>
+</div>
+{% endblock %}

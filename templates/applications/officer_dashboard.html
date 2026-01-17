@@ -1,0 +1,523 @@
+{% extends 'base.html' %}
+{% load custom_filters static %}
+{% block title %}Officer Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4 position-relative" style="padding-top: 1.5rem;">
+  <!-- small block placed below the navbar, top-left -->
+  <div class="position-absolute top-0 start-0 p-2" style="z-index:10;">
+    <div class="bg-white shadow-sm rounded px-3 py-2">
+      <h3><strong class="d-block">Officer Dashboard</strong></h3>
+      <small class="text-muted">Overview of institutions, applications and finance</small>
+    </div>
+  </div>
+
+<br> 
+  <!-- main header row: H3 on the left, search/actions on the right -->
+  <div class="d-flex justify-content-between align-items-center mb-3" style="margin-top: 3.25rem;">
+ 
+
+    <div class="d-flex align-items-center">
+      <form class="d-flex me-2" method="get">
+        <input name="q" value="{{ request.GET.q|default:query }}" class="form-control form-control-sm me-2" placeholder="Search applicants, institution, email">
+        <button class="btn btn-sm btn-primary" type="submit">Search</button>
+      </form>
+
+      {% if institutions_list or statuses %}
+      <form class="d-flex me-2" method="get">
+        {% if institutions_list %}
+          <select name="institution" class="form-select form-select-sm me-2">
+            <option value="">All institutions</option>
+            {% for inst in institutions_list %}
+              <option value="{{ inst.id }}" {% if inst.id|stringformat:"s" == request.GET.institution %}selected{% endif %}>{{ inst.name }}</option>
+            {% endfor %}
+          </select>
+        {% endif %}
+        {% if statuses %}
+          <select name="status" class="form-select form-select-sm me-2">
+            <option value="">All statuses</option>
+            {% for key, label in statuses.items %}
+              <option value="{{ key }}" {% if key == request.GET.status %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        {% endif %}
+        <button class="btn btn-sm btn-outline-secondary" type="submit">Filter</button>
+      </form>
+      {% endif %}
+
+      {% if allow_export %}
+        <a href="{% url 'applications:export_applications' %}?{{ request.GET.urlencode }}" class="btn btn-sm btn-outline-success">Export CSV</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Top summary widgets -->
+  <div class="row g-3 mb-3">
+    <div class="col-md-3">
+      <div class="card p-2">
+        <div class="small text-muted">Total applications</div>
+
+
+     <!-- after -->
+      <span class="badge bg-secondary ms-2">
+      {% if totals.total_applications %}
+      {{ totals.total_applications }}
+      {% else %}
+      {{ total_applications }}
+      {% endif %}
+      </span>
+
+      </div>
+    </div>
+
+    <div class="col-md-2">
+      <div class="card p-2">
+        <div class="small text-muted">Approved</div>
+        <div class="h4 text-success">{{ totals.total_approved }}</div>
+      </div>
+    </div>
+
+    <div class="col-md-2">
+      <div class="card p-2">
+        <div class="small text-muted">Pending</div>
+        <div class="h4 text-warning">{{ totals.total_pending }}</div>
+      </div>
+    </div>
+
+    <div class="col-md-2">
+      <div class="card p-2">
+        <div class="small text-muted">Rejected</div>
+        <div class="h4 text-danger">{{ totals.total_rejected }}</div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      {% if finance_totals %}
+        <div class="card p-2">
+          <div class="small text-muted">Approved pool outstanding</div>
+          <div class="h5 text-danger">PGK {{ finance_totals.pool_total_outstanding|floatformat:2 }}</div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {# Additional finance summary (committed / paid / remaining) #}
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <div class="card text-white bg-primary h-100">
+        <div class="card-body">
+          <h6 class="card-title">Committed</h6>
+          <p class="card-text display-6">PGK {{ committed_total|floatformat:2 }}</p>
+          <small class="text-white-50">Total FF3 commitments</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card text-white bg-success h-100">
+        <div class="card-body">
+          <h6 class="card-title">Paid (Escalated to Treasury)</h6>
+          <p class="card-text display-6">PGK {{ paid_total|floatformat:2 }}</p>
+          <small class="text-white-50">Total FF4 / Treasury confirmed</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card text-dark bg-light h-100">
+        <div class="card-body">
+          <h6 class="card-title">Remaining Balance</h6>
+          <p class="card-text display-6">PGK {{ remaining_total|floatformat:2 }}</p>
+          <div class="progress mt-2" style="height:8px;">
+            <div class="progress-bar" role="progressbar" style="width: {{ paid_percent }}%;" aria-valuenow="{{ paid_percent }}" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+          <small class="text-muted">{{ paid_percent }}% of committed funds paid</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Left column: applications + finance -->
+    <div class="col-lg-8">
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <div>
+            <strong>Recent applications (preview)</strong>
+            <span class="text-muted ms-2">({{ preview_applications|length }})</span>
+          </div>
+          <a href="{% url 'applications:review_list' %}" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center">
+            <i class="bi bi-people-fill me-2"></i> View All Applicants
+                  <span class="badge bg-secondary ms-2">
+      {% if totals.total_applications %}
+      {{ totals.total_applications }}
+      {% else %}
+      {{ total_applications }}
+      {% endif %}
+      </span>
+
+          </a>
+        </div>
+
+        <div class="card-body p-0">
+          <div class="list-group list-group-flush">
+            {% for app in preview_applications %}
+              <div class="list-group-item">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <strong>{{ app.applicant.user.get_full_name|default:app.applicant.user.username }}</strong>
+                    <div class="small text-muted">{{ app.institution.name }} — {{ app.course.name }}</div>
+                  </div>
+                  <div class="text-end">
+                    <div class="small text-muted">{{ app.submission_date|date:"d M Y H:i" }}</div>
+                    <div class="mt-1">
+                      {% if app.status|upper == 'APPROVED' or app.status == 'approved' %}
+                        <span class="badge bg-success me-1">Approved</span>
+                      {% elif app.status|upper == 'REJECTED' or app.status == 'rejected' %}
+                        <span class="badge bg-danger me-1">Rejected</span>
+                      {% elif app.status|upper == 'NEEDS_INFO' or app.status == 'needs_info' %}
+                        <span class="badge bg-info text-dark me-1">Needs info</span>
+                      {% else %}
+                        <span class="badge bg-warning text-dark me-1">{{ app.get_status_display }}</span>
+                      {% endif %}
+                      <a href="{% url 'applications:officer_application_detail' app.pk %}" class="btn btn-sm btn-outline-primary"> View
+                      </a>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% empty %}
+              <div class="list-group-item text-muted">No recent applications</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!--{# All applications (paginated) #}
+      <h5 class="mb-2">All applications</h5>
+      <div class="table-responsive mb-3">
+        <table class="table table-sm align-middle">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Applicant</th>
+              <th>Institution</th>
+              <th>Course</th>
+              <th>Status</th>
+              <th>Submitted</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for app in applications_page %}
+              <tr>
+                <td>{{ forloop.counter0|add:applications_page.start_index }}</td>
+                <td>
+                  <div>{{ app.applicant.user.get_full_name }}</div>
+                  <small class="text-muted">{{ app.applicant.user.email }}</small>
+                </td>
+                <td>{{ app.institution.name }}</td>
+                <td>{{ app.course.name }}</td>
+                <td>
+                  {% if app.status|upper == 'APPROVED' or app.status == 'approved' %}
+                    <span class="badge bg-success">Approved</span>
+                  {% elif app.status|upper == 'PENDING' or app.status == 'pending' %}
+                    <span class="badge bg-warning text-dark">Pending</span>
+                  {% elif app.status|upper == 'REJECTED' or app.status == 'rejected' %}
+                    <span class="badge bg-danger">Rejected</span>
+                  {% else %}
+                    <span class="badge bg-secondary">{{ app.get_status_display }}</span>
+                  {% endif %}
+                </td>
+                <td>{{ app.submission_date|date:"d M Y" }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="6" class="text-muted">No applications found</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div> -->
+
+      {% include "partials/pagination.html" with page_obj=applications_page %}
+
+      {# Finance overview table #}
+      <div class="card mb-4">
+        <div class="card-header">
+          <strong>Finance Overview (Read-only)</strong>
+          <small class="text-muted ms-2">Payments and commitments</small>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-striped mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Payment ID</th>
+                  <th>Applicant</th>
+                  <th>Institution</th>
+                  <th>Vote</th>
+                  <th class="text-end">Amount (PGK)</th>
+                  <th>Status</th>
+                  <th>Payment Date</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for payment in payments %}
+                  <tr>
+                    <td>{{ payment.id }}</td>
+                    <td>{{ payment.application.full_name }}</td>
+                    <td>{{ payment.application.institution.name }}</td>
+                    <td>{% if payment.budget_vote %}{{ payment.budget_vote.vote_code }}{% else %}-{% endif %}</td>
+                    <td class="text-end">{{ payment.amount|floatformat:2 }}</td>
+                    <td>
+                      <span class="badge {% if payment.status|upper == 'PAID' %} bg-success {% elif payment.status|upper == 'COMMITTED' %} bg-warning text-dark {% else %} bg-secondary {% endif %}">
+                        {{ payment.get_status_display }}
+                      </span>
+                    </td>
+                    <td>{{ payment.payment_date|date:"d M Y" }}</td>
+                    <td>
+                      <a class="btn btn-sm btn-outline-secondary" href="{% url 'finance:payment_detail' payment.id %}">Details</a>
+                      {% if payment.generated_pdfs.exists %}
+                        <a class="btn btn-sm btn-link" href="{% url 'finance:pdf_list' %}?payment__id__exact={{ payment.id }}">PDFs</a>
+                      {% else %}
+                        <a class="btn btn-sm btn-outline-primary" href="{% url 'finance:generate_pdf_for_payment' payment.id %}">Generate PDF</a>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr><td colspan="8" class="text-center">No payments recorded.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column: institution stats, budget votes, quick widgets -->
+    <div class="col-lg-4">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0">Institution statistics</h5>
+        <a href="{% url 'institutions:list' %}" class="btn btn-sm btn-outline-primary open-pool-btn">Manage institutions</a>
+      </div>
+
+      <div class="list-group mb-3">
+{# inside the loop that renders institution_stats #}
+{% for stats in institution_stats %}
+  <div class="list-group-item d-flex justify-content-between align-items-center">
+    <div>
+      <strong>{{ stats.name }}</strong><br>
+      <small class="text-muted">Total: {{ stats.total }} • Approved: {{ stats.approved }} • Pending: {{ stats.pending }}</small>
+    </div>
+
+    <div>
+      {% if stats.id %}
+                <a href="{% url 'institutions:pool_list' stats.id 'pending' %}" class="btn btn-sm btn-outline-primary open-pool-btn" target="_blank">Open pool</a>
+      {% else %}
+       
+      {% endif %}
+    </div>
+  </div>
+{% endfor %}
+
+
+      {% if finance_totals %}
+        <h6>Approved pool totals</h6>
+        <ul class="list-group mb-3">
+          <li class="list-group-item">Tuition: PGK {{ finance_totals.pool_total_tuition|floatformat:2 }}</li>
+          <li class="list-group-item">Paid: PGK {{ finance_totals.pool_total_paid|floatformat:2 }}</li>
+          <li class="list-group-item">Committed: PGK {{ finance_totals.pool_total_committed|floatformat:2 }}</li>
+          <li class="list-group-item text-danger">Outstanding: PGK {{ finance_totals.pool_total_outstanding|floatformat:2 }}</li>
+        </ul>
+      {% endif %}
+
+      <div class="card mb-4">
+        <div class="card-header"><strong>Budget Votes</strong></div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-sm mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Vote</th>
+                  <th class="text-end">Allocation</th>
+                  <th class="text-end">Remaining</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for vote in budget_votes %}
+                  <tr>
+                    <td>{{ vote.vote_code }}</td>
+                    <td class="text-end">PGK {{ vote.allocation_amount|floatformat:2 }}</td>
+                    <td class="text-end">PGK {{ vote.remaining_balance|floatformat:2 }}</td>
+                  </tr>
+                {% empty %}
+                  <tr><td colspan="3" class="text-center">No budget votes defined.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-body">
+          <h6 class="card-title">Quick Filters</h6>
+          <form method="get" action="{% url 'applications:officer_dashboard' %}">
+            <div class="mb-2">
+              <label class="form-label small">Status</label>
+              <select name="status" class="form-select form-select-sm">
+                <option value="">All</option>
+                <option value="COMMITTED">Committed</option>
+                <option value="PAID">Paid</option>
+                <option value="CANCELLED">Cancelled</option>
+              </select>
+            </div>
+            <div class="mb-2">
+              <label class="form-label small">Vote Code</label>
+              <select name="vote" class="form-select form-select-sm">
+                <option value="">All</option>
+                {% for vote in budget_votes %}
+                  <option value="{{ vote.vote_code }}">{{ vote.vote_code }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <button class="btn btn-sm btn-outline-primary" type="submit">Apply</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-body">
+          <h6 class="card-title">Statistics</h6>
+          <p class="mb-1">Total Applications: <strong>{{ applications|length }}</strong></p>
+          <p class="mb-1">Scholarships Awarded: <strong>{{ total_awarded }}</strong></p>
+          <p class="mb-1">Institutions: <strong>{{ institutions_count }}</strong></p>
+        </div>
+      </div>
+
+      <div class="card p-2">
+        <div class="small text-muted">Quick actions</div>
+        <div class="mt-2 d-flex gap-2">
+         
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <footer class="text-center text-muted small mt-4">
+    <p>Finance data is read-only for Scholarship Officers. For changes contact Finance or Section 32 officers.</p>
+  </footer>
+</div>
+
+<!-- Institution Details Modal -->
+<div class="modal fade" id="institutionModal" tabindex="-1" aria-labelledby="institutionModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-light">
+        <h5 class="modal-title" id="institutionModalLabel">Institution Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="institutionModalBody">
+        {% if institution %}
+          <h6 class="fw-bold">{{ institution.name }}</h6>
+          <p><strong>Location:</strong> {{ institution.location }}</p>
+          <p><strong>Phone:</strong> {{ institution.phone|default:"—" }}</p>
+          <p><strong>Email:</strong> {{ institution.email|default:"—" }}</p>
+
+          <h6 class="mt-4">🏦 Account Details</h6>
+          <ul class="list-group">
+            <li class="list-group-item"><strong>Account Name:</strong> {{ institution.account_name }}</li>
+            <li class="list-group-item"><strong>Account Number:</strong> {{ institution.account_number }}</li>
+            <li class="list-group-item"><strong>Bank:</strong> {{ institution.bank }}</li>
+            <li class="list-group-item"><strong>Branch:</strong> {{ institution.branch }}</li>
+          </ul>
+        {% else %}
+          <p class="text-muted">No institution details available.</p>
+        {% endif %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{# add near end of officer_dashboard.html #}
+<div class="modal fade" id="poolModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Institution pool</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="poolModalBody">
+        <!-- fragment HTML will be injected here -->
+        <div class="text-center py-4">Loading…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var institutionModal = document.getElementById('institutionModal');
+  if (!institutionModal) return;
+  institutionModal.addEventListener('show.bs.modal', function (event) {
+    var button = event.relatedTarget;
+    if (!button) return;
+    var url = button.getAttribute('data-url');
+    var body = document.getElementById('institutionModalBody');
+    if (!body) return;
+    body.innerHTML = '<p class="text-muted">Loading...</p>';
+    fetch(url, { credentials: 'same-origin' })
+      .then(function (r) { if (!r.ok) throw new Error('Network error'); return r.text(); })
+      .then(function (html) { body.innerHTML = html; })
+      .catch(function () { body.innerHTML = '<p class="text-danger">Could not load details.</p>'; });
+  });
+});
+
+
+document.addEventListener('DOMContentLoaded', function () {
+  const modalEl = document.getElementById('poolModal');
+  const modalBody = document.getElementById('poolModalBody');
+
+  function openPoolFragment(instId) {
+    modalBody.innerHTML = '<div class="text-center py-4">Loading…</div>';
+    const url = `/institutions/pool/${instId}/fragment/`; // adjust prefix if your include path differs
+
+    fetch(url, {
+      credentials: 'same-origin',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(resp => {
+      if (!resp.ok) throw new Error('Network response was not ok');
+      return resp.text();
+    })
+    .then(html => {
+      modalBody.innerHTML = html;
+      // re-initialize any JS inside fragment if needed
+    })
+    .catch(err => {
+      modalBody.innerHTML = '<div class="text-danger p-3">Failed to load pool. Try opening full page.</div>';
+      console.error(err);
+    });
+
+    // show bootstrap modal
+    const bsModal = new bootstrap.Modal(modalEl);
+    bsModal.show();
+  }
+
+  document.querySelectorAll('.open-pool-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const instId = this.dataset.institutionId;
+      if (instId) openPoolFragment(instId);
+    });
+  });
+});
+
+</script>
+{% endblock %}

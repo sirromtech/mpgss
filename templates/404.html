@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>404 — Page Not Found</title>
+<style>
+  /* Reset & base */
+  :root{
+    --bg1:#0f1724;    /* deep navy */
+    --bg2:#0b2a3a;    /* tealish */
+    --accent:#ff6b6b; /* coral */
+    --muted:#9fb3c8;
+    --glass: rgba(255,255,255,0.04);
+    --glass-2: rgba(255,255,255,0.02);
+    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Segoe UI Mono", "Helvetica Neue", monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: radial-gradient(1200px 600px at 10% 10%, rgba(255,255,255,0.02), transparent 5%),
+                linear-gradient(180deg,var(--bg1), var(--bg2));
+    color: #e6f0f3;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:2rem;
+    overflow:hidden;
+  }
+
+  /* Moving subtle diagonal stripes background */
+  .moving-bg{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    background-image:
+      repeating-linear-gradient(135deg, rgba(255,255,255,0.03) 0 1px, transparent 1px 20px),
+      linear-gradient(180deg, rgba(255,255,255,0.015), transparent 40%);
+    animation: bg-slide 20s linear infinite;
+    pointer-events:none;
+  }
+  @keyframes bg-slide{
+    from{background-position:0 0, 0 0}
+    to{background-position:1000px 1000px, 0 0}
+  }
+
+  /* Decorative floating orbs (pure CSS) */
+  .orb{
+    position:fixed;
+    border-radius:50%;
+    filter: blur(10px);
+    opacity:0.12;
+    z-index:0;
+    pointer-events:none;
+  }
+  .orb.o1{width:360px;height:360px;right:-120px;top:-60px;background:linear-gradient(45deg,#2a7fb1,#1b2f4a); animation: floaty 8s ease-in-out infinite alternate;}
+  .orb.o2{width:240px;height:240px;left:-80px;bottom:-40px;background:linear-gradient(45deg,#1b4f6a,#16384a); animation: floaty 12s ease-in-out infinite alternate-reverse;}
+  @keyframes floaty{to{transform:translateY(-30px) scale(1.03) rotate(6deg)}}
+
+  /* Card */
+  .card{
+    position:relative;
+    z-index:1;
+    width:min(920px,95%);
+    max-width:1100px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:16px;
+    padding:2.2rem;
+    box-shadow: 0 10px 40px rgba(2,6,23,0.6);
+    display:grid;
+    grid-template-columns: 1fr 360px;
+    gap:1.8rem;
+    align-items:center;
+    backdrop-filter: blur(6px) saturate(1.05);
+    border: 1px solid rgba(255,255,255,0.03);
+  }
+
+  /* Left area: big animated 404 */
+  .left{
+    display:flex;
+    flex-direction:column;
+    gap:1rem;
+  }
+
+  .error-scene{
+    display:flex;
+    align-items:center;
+    gap:1rem;
+    flex-wrap:wrap;
+  }
+
+  /* Each digit block */
+  .digit{
+    width:120px;
+    height:120px;
+    min-width:90px;
+    display:inline-grid;
+    place-items:center;
+    font-family:var(--mono);
+    font-weight:800;
+    font-size:48px;
+    color:var(--bg2);
+    background:linear-gradient(180deg,#ffffff,#f0f6fb);
+    border-radius:18px;
+    transform:translateY(0);
+    box-shadow: 0 8px 30px rgba(3,12,20,0.45), inset 0 -6px 18px rgba(0,0,0,0.06);
+    position:relative;
+    overflow:visible;
+    will-change:transform;
+    animation: bob 4s ease-in-out infinite;
+  }
+
+  .digit:nth-child(1){ animation-delay: -0.3s }
+  .digit:nth-child(2){ animation-delay: 0s }
+  .digit:nth-child(3){ animation-delay: -0.6s }
+
+  @keyframes bob{
+    0%{ transform: translateY(0) rotate(-1deg) }
+    25%{ transform: translateY(-12px) rotate(2deg) }
+    50%{ transform: translateY(0) rotate(-1deg) }
+    75%{ transform: translateY(8px) rotate(-3deg) }
+    100%{ transform: translateY(0) rotate(-1deg) }
+  }
+
+  /* small 'glitch' slices using pseudo elements */
+  .digit::after,
+  .digit::before{
+    content:"";
+    position:absolute;
+    inset:auto 6px 6px 6px;
+    height:6px;
+    border-radius:3px;
+    background:linear-gradient(90deg, rgba(255,255,255,0.6), rgba(255,255,255,0.15));
+    transform-origin:left center;
+    opacity:0.12;
+    pointer-events:none;
+  }
+
+  /* Glitch effect on the middle digit */
+  .digit.middle{
+    color:var(--accent);
+    background: linear-gradient(180deg,#fff8f8,#fff2f2);
+    box-shadow: 0 14px 40px rgba(255,80,80,0.07), inset 0 -6px 18px rgba(0,0,0,0.04);
+  }
+  .digit.middle .num{
+    position:relative;
+    display:block;
+    transform-origin:center;
+    animation: glitch-text 2.8s steps(2,end) infinite;
+  }
+  @keyframes glitch-text{
+    0%{ transform: translateX(0) }
+    7%{ transform: translateX(-2px) skewX(-6deg) }
+    10%{ transform: translateX(2px) skewX(6deg) }
+    13%{ transform: translateX(0) }
+    100%{ transform: translateX(0) }
+  }
+
+  /* small shadow label below digits */
+  .shadow{
+    font-size:13px;
+    color:var(--muted);
+    margin-top:6px;
+  }
+
+  /* Right panel: message & ribbon */
+  .right{
+    display:flex;
+    flex-direction:column;
+    gap:1rem;
+    align-items:flex-start;
+  }
+
+  h1{
+    margin:0;
+    font-size:1.6rem;
+    letter-spacing:-0.6px;
+  }
+  p.lead{
+    margin:0;
+    color:var(--muted);
+    line-height:1.4;
+  }
+
+  /* moving ribbon */
+  .ribbon{
+    margin-top:0.6rem;
+    display:inline-block;
+    padding:0.65rem 1rem;
+    border-radius:999px;
+    background:linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+    border:1px solid rgba(255,255,255,0.03);
+    font-weight:600;
+    color: #f7faff;
+    box-shadow: 0 6px 24px rgba(2,6,23,0.45);
+    transform: translateX(0);
+    animation: ribbon-slide 6s ease-in-out infinite;
+  }
+  @keyframes ribbon-slide{
+    0%{ transform: translateX(0) }
+    25%{ transform: translateX(18px) }
+    50%{ transform: translateX(0) }
+    75%{ transform: translateX(-14px) }
+    100%{ transform: translateX(0) }
+  }
+
+  /* subtle moving dots (like loading) */
+  .dots{
+    display:inline-flex;
+    gap:6px;
+    margin-left:8px;
+    vertical-align:middle;
+  }
+  .dots span{
+    width:8px;height:8px;border-radius:50%;background:var(--accent);opacity:0.85;display:inline-block;
+    transform:translateY(0); animation: dot-bounce 1.2s infinite ease-in-out;
+  }
+  .dots span:nth-child(2){ animation-delay: 0.12s }
+  .dots span:nth-child(3){ animation-delay: 0.24s }
+  @keyframes dot-bounce{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+
+  /* action area */
+  .actions{ margin-top:0.6rem; display:flex; gap:0.6rem; flex-wrap:wrap; }
+  .btn{
+    display:inline-block;
+    padding:0.6rem 0.9rem;
+    border-radius:10px;
+    text-decoration:none;
+    font-weight:600;
+    background:linear-gradient(90deg,var(--accent), #ff8f6b);
+    color:white;
+    border:0;
+    box-shadow: 0 8px 20px rgba(255,107,107,0.12);
+  }
+  .btn.ghost{
+    background:transparent;
+    color:var(--muted);
+    border:1px solid rgba(255,255,255,0.04);
+  }
+
+  /* small extra text */
+  small{ color:var(--muted); display:block; margin-top:6px }
+
+  /* Responsive */
+  @media (max-width:880px){
+    .card{ grid-template-columns: 1fr; padding:1.4rem; gap:1rem }
+    .right{ align-items:center; text-align:center }
+    .digit{ width:92px; height:92px; font-size:34px; border-radius:14px }
+  }
+
+  /* accessibility focus */
+  a:focus{ outline:3px solid rgba(255,107,107,0.22); outline-offset:2px; border-radius:8px; }
+
+</style>
+</head>
+<body>
+  <div class="moving-bg" aria-hidden="true"></div>
+  <div class="orb o1" aria-hidden="true"></div>
+  <div class="orb o2" aria-hidden="true"></div>
+
+  <main role="main" aria-labelledby="errTitle" style="width:100%;display:flex;align-items:center;justify-content:center;">
+    <section class="card" role="article" aria-label="404 error information">
+      <div class="left">
+        <div class="error-scene" aria-hidden="false">
+          <div class="digit"><span class="num">4</span></div>
+          <div class="digit middle"><span class="num">0</span></div>
+          <div class="digit"><span class="num">4</span></div>
+        </div>
+        <div class="shadow">Error code: <strong>404</strong> — Resource not found</div>
+      </div>
+
+      <div class="right">
+        <h1 id="errTitle">Page not found</h1>
+        <p class="lead">Sorry — the page you're looking for doesn't exist, may have been moved, or the link is broken.</p>
+
+        <div class="ribbon" role="status" aria-live="polite">
+          Gerson Solulu Scholarship — investing in people
+          <span class="dots" aria-hidden="true"><span></span><span></span><span></span></span>
+        </div>
+
+        <div class="actions" aria-hidden="false">
+          <a href="/" class="btn" aria-label="Go to homepage">Go to homepage</a>
+          <a href="mailto:info@example.com" class="btn ghost" aria-label="Contact support">Contact support</a>
+        </div>
+
+        <small>If you typed the address manually, double-check the spelling. If you arrived here from a link, the owner may have moved or deleted the page.</small>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

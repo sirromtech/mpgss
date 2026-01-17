@@ -1,0 +1,302 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Review Application{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h3>Review Application — {{ application.applicant.user.get_full_name }}</h3>
+
+  <!-- Application header -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-8">
+          <p><strong>Applicant:</strong> {{ application.applicant.user.get_full_name }}</p>
+          <p><strong>Username / Email:</strong> {{ application.applicant.user.username }} / {{ application.applicant.user.email }}</p>
+          <p><strong>Institution:</strong> {{ application.institution.name }} {% if application.institution.code %}({{ application.institution.code }}){% endif %}</p>
+          <p><strong>Course:</strong> {{ application.course.name|default:"—" }}</p>
+        </div>
+        <div class="col-md-4 text-end">
+          <p><strong>Submitted:</strong> {{ application.submission_date|date:"d M Y H:i" }}</p>
+          <p><strong>Application Status:</strong> <span class="badge bg-info">{{ application.get_status_display }}</span></p>
+          <p><strong>Payment Status:</strong> <span class="badge bg-secondary">{{ application.payment_status }}</span></p>
+        </div>
+      </div>
+
+      <hr>
+      <h6>AI Eligibility Summary</h6>
+      <pre class="bg-light p-3 border rounded">{{ application.ai_summary|default:"No summary available." }}</pre>
+    </div>
+  </div>
+
+  <!-- Accordion: Applicant data, Documents, Financials -->
+  <div class="accordion" id="reviewAccordion">
+
+    <!-- Personal Information -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingPersonal">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapsePersonal" aria-expanded="true"
+                aria-controls="collapsePersonal">
+          Personal Information
+        </button>
+      </h2>
+      <div id="collapsePersonal" class="accordion-collapse collapse show"
+           aria-labelledby="headingPersonal" data-bs-parent="#reviewAccordion">
+        <div class="accordion-body">
+          <div class="row g-3">
+            <div class="col-md-4"><strong>First name</strong><div>{{ application.applicant.first_name }}</div></div>
+            <div class="col-md-4"><strong>Surname</strong><div>{{ application.applicant.surname }}</div></div>
+            <div class="col-md-4"><strong>Gender</strong><div>{{ application.applicant.get_gender_display|default:application.applicant.gender }}</div></div>
+
+            <div class="col-md-4"><strong>Date of birth</strong><div>{{ application.applicant.date_of_birth|date:"d M Y" }}</div></div>
+            <div class="col-md-4"><strong>SIM card</strong><div>{{ application.applicant.sim_card_number }}</div></div>
+            <div class="col-md-4"><strong>NID</strong><div>{{ application.applicant.nid_number }}</div></div>
+
+            <div class="col-md-6"><strong>Phone</strong><div>{{ application.applicant.phone_number }}</div></div>
+            <div class="col-md-6"><strong>Active student ID</strong><div>{{ application.applicant.active_student_id }}</div></div>
+
+            <div class="col-md-12">
+              <strong>Address</strong>
+              <div>{{ application.applicant.address }}</div>
+            </div>
+
+            {% if application.applicant.photo %}
+            <div class="col-md-3">
+              <strong>Photo</strong>
+              <div class="mt-2">
+                <img src="{{ application.applicant.photo.url }}" alt="Applicant photo" class="img-thumbnail" style="max-width:150px;">
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Education & Academic -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingEducation">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapseEducation" aria-expanded="false"
+                aria-controls="collapseEducation">
+          Education & Academic
+        </button>
+      </h2>
+      <div id="collapseEducation" class="accordion-collapse collapse"
+           aria-labelledby="headingEducation" data-bs-parent="#reviewAccordion">
+        <div class="accordion-body">
+          <div class="row g-3">
+            <div class="col-md-6"><strong>Grade 12 certificate no.</strong><div>{{ application.applicant.grade12_certificate_number }}</div></div>
+            <div class="col-md-6"><strong>Secondary school</strong><div>{{ application.applicant.secondary_school_name }}</div></div>
+            <div class="col-md-4"><strong>Year completed Grade 12</strong><div>{{ application.applicant.year_completed_grade12 }}</div></div>
+            <div class="col-md-4"><strong>TESAS category</strong><div>{{ application.applicant.tesas_category }}</div></div>
+
+            <div class="col-md-4"><strong>Elementary completed</strong><div>{% if application.applicant.elementary_completed %}Yes{% else %}No{% endif %}</div></div>
+            <div class="col-md-4"><strong>Primary completed</strong><div>{% if application.applicant.primary_completed %}Yes{% else %}No{% endif %}</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Family Information -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingFamily">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapseFamily" aria-expanded="false"
+                aria-controls="collapseFamily">
+          Family Information
+        </button>
+      </h2>
+      <div id="collapseFamily" class="accordion-collapse collapse"
+           aria-labelledby="headingFamily" data-bs-parent="#reviewAccordion">
+        <div class="accordion-body">
+          <div class="row g-3">
+            <div class="col-12"><h6>Father</h6></div>
+            <div class="col-md-6"><strong>Name</strong><div>{{ application.applicant.father_name }}</div></div>
+            <div class="col-md-6"><strong>Occupation</strong><div>{{ application.applicant.father_occupation }}</div></div>
+            <div class="col-md-4"><strong>Nationality</strong><div>{{ application.applicant.father_nationality }}</div></div>
+            <div class="col-md-4"><strong>Province</strong><div>{{ application.applicant.father_province }}</div></div>
+            <div class="col-md-4"><strong>District</strong><div>{{ application.applicant.father_district }}</div></div>
+            <div class="col-md-4"><strong>LLG</strong><div>{{ application.applicant.father_llg }}</div></div>
+            <div class="col-md-4"><strong>Village</strong><div>{{ application.applicant.father_village }}</div></div>
+            <div class="col-md-4"><strong>Elementary completed</strong><div>{% if application.applicant.father_elementary_completed %}Yes{% else %}No{% endif %}</div></div>
+            <div class="col-md-4"><strong>Primary completed</strong><div>{% if application.applicant.father_primary_completed %}Yes{% else %}No{% endif %}</div></div>
+            <div class="col-md-4"><strong>Highschool completed</strong><div>{% if application.applicant.father_highschool_completed %}Yes{% else %}No{% endif %}</div></div>
+
+            <div class="col-12 mt-3"><h6>Mother</h6></div>
+            <div class="col-md-6"><strong>Name</strong><div>{{ application.applicant.mother_name }}</div></div>
+            <div class="col-md-6"><strong>Occupation</strong><div>{{ application.applicant.mother_occupation }}</div></div>
+            <div class="col-md-4"><strong>Nationality</strong><div>{{ application.applicant.mother_nationality }}</div></div>
+            <div class="col-md-4"><strong>Province</strong><div>{{ application.applicant.mother_province }}</div></div>
+            <div class="col-md-4"><strong>District</strong><div>{{ application.applicant.mother_district }}</div></div>
+            <div class="col-md-4"><strong>LLG</strong><div>{{ application.applicant.mother_llg }}</div></div>
+            <div class="col-md-4"><strong>Village</strong><div>{{ application.applicant.mother_village }}</div></div>
+            <div class="col-md-4"><strong>Elementary completed</strong><div>{% if application.applicant.mother_elementary_completed %}Yes{% else %}No{% endif %}</div></div>
+            <div class="col-md-4"><strong>Elementary year</strong><div>{{ application.applicant.mother_elementary_year }}</div></div>
+            <div class="col-md-4"><strong>Primary completed</strong><div>{% if application.applicant.mother_primary_completed %}Yes{% else %}No{% endif %}</div></div>
+            <div class="col-md-4"><strong>Primary year</strong><div>{{ application.applicant.mother_primary_year }}</div></div>
+            <div class="col-md-4"><strong>Highschool completed</strong><div>{% if application.applicant.mother_highschool_completed %}Yes{% else %}No{% endif %}</div></div>
+            <div class="col-md-4"><strong>Highschool year</strong><div>{{ application.applicant.mother_highschool_year }}</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Address & Residency -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingAddress">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapseAddress" aria-expanded="false"
+                aria-controls="collapseAddress">
+          Address & Residency
+        </button>
+      </h2>
+      <div id="collapseAddress" class="accordion-collapse collapse"
+           aria-labelledby="headingAddress" data-bs-parent="#reviewAccordion">
+        <div class="accordion-body">
+          <div class="row g-3">
+            <div class="col-md-12"><strong>Current address</strong><div>{{ application.applicant.current_address }}</div></div>
+            <div class="col-md-6"><strong>Residential area</strong><div>{{ application.applicant.current_residential_area }}</div></div>
+            <div class="col-md-4"><strong>District</strong><div>{{ application.applicant.current_district }}</div></div>
+            <div class="col-md-4"><strong>LLG</strong><div>{{ application.applicant.current_llg }}</div></div>
+            <div class="col-md-4"><strong>Duration living in</strong><div>{{ application.applicant.duration_living_in }}</div></div>
+
+            <hr class="my-3 w-100">
+
+            <div class="col-md-4"><strong>Origin province</strong><div>{{ application.applicant.origin_province }}</div></div>
+            <div class="col-md-4"><strong>Origin district</strong><div>{{ application.applicant.origin_district }}</div></div>
+            <div class="col-md-4"><strong>Origin ward</strong><div>{{ application.applicant.origin_ward }}</div></div>
+
+            <div class="col-md-4"><strong>Residency province</strong><div>{{ application.applicant.residency_province }}</div></div>
+            <div class="col-md-4"><strong>Residency district</strong><div>{{ application.applicant.residency_district }}</div></div>
+            <div class="col-md-4"><strong>Residency ward</strong><div>{{ application.applicant.residency_ward }}</div></div>
+            <div class="col-md-4"><strong>Residency years</strong><div>{{ application.applicant.residency_years }}</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Financial Information -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingFinancial">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapseFinancial" aria-expanded="false"
+                aria-controls="collapseFinancial">
+          Financial Information
+        </button>
+      </h2>
+      <div id="collapseFinancial" class="accordion-collapse collapse"
+           aria-labelledby="headingFinancial" data-bs-parent="#reviewAccordion">
+        <div class="accordion-body">
+          <div class="row g-3">
+            <div class="col-12"><h6>Parents</h6></div>
+            <div class="col-md-6"><strong>Company</strong><div>{{ application.parent_company }}</div></div>
+            <div class="col-md-6"><strong>Job title</strong><div>{{ application.parent_job_title }}</div></div>
+            <div class="col-md-6"><strong>Salary range</strong><div>{{ application.parent_salary_range }}</div></div>
+            <div class="col-md-6"><strong>Income source</strong><div>{{ application.parent_income_source }}</div></div>
+            <div class="col-md-6"><strong>Annual income</strong><div>{{ application.parent_annual_income }}</div></div>
+
+            <div class="col-12 mt-3"><h6>Student</h6></div>
+            <div class="col-md-4"><strong>Employed</strong><div>{% if application.student_employed %}Yes{% else %}No{% endif %}</div></div>
+            <div class="col-md-4"><strong>Company</strong><div>{{ application.student_company }}</div></div>
+            <div class="col-md-4"><strong>Job title</strong><div>{{ application.student_job_title }}</div></div>
+            <div class="col-md-6"><strong>Salary range</strong><div>{{ application.student_salary_range }}</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+        <!-- Uploaded Documents -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingDocs">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapseDocs" aria-expanded="false"
+                        aria-controls="collapseDocs">
+                    Uploaded Documents
+                </button>
+            </h2>
+            <div id="collapseDocs" class="accordion-collapse collapse"
+                 aria-labelledby="headingDocs" data-bs-parent="#reviewAccordion">
+                <div class="accordion-body">
+                    <ul>
+                        {% if application.grade_12_certificate %}
+                            <li><a href="{{ application.grade_12_certificate.url }}" target="_blank">Grade 12 Certificate</a></li>
+                        {% endif %}
+                        {% if application.transcript %}
+                            <li><a href="{{ application.transcript.url }}" target="_blank">Transcript</a></li>
+                        {% endif %}
+                        {% if application.acceptance_letter %}
+                            <li><a href="{{ application.acceptance_letter.url }}" target="_blank">Acceptance Letter</a></li>
+                        {% endif %}
+                        {% if application.school_fee_structure %}
+                            <li><a href="{{ application.school_fee_structure.url }}" target="_blank">School Fee Structure</a></li>
+                        {% endif %}
+                        {% if application.id_card %}
+                            <li><a href="{{ application.id_card.url }}" target="_blank">ID Card</a></li>
+                        {% endif %}
+                        {% if application.character_reference_1 %}
+                            <li><a href="{{ application.character_reference_1.url }}" target="_blank">Character Reference 1</a></li>
+                        {% endif %}
+                        {% if application.character_reference_2 %}
+                            <li><a href="{{ application.character_reference_2.url }}" target="_blank">Character Reference 2</a></li>
+                        {% endif %}
+                        {% if application.statedec %}
+                            <li><a href="{{ application.statedec.url }}" target="_blank">Statutory Declaration</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+  </div> <!-- end accordion -->
+
+  <!-- Review form -->
+  <form method="post" class="mt-4">
+    {% csrf_token %}
+    <div class="row g-3">
+      <div class="col-md-4">
+        <label for="status" class="form-label">Review Status</label>
+        <select name="status" id="status" class="form-select">
+          <option value="pending" {% if default_status == 'pending' %}selected{% endif %}>Pending</option>
+          <option value="approved" {% if default_status == 'approved' %}selected{% endif %}>Approved</option>
+          <option value="rejected" {% if default_status == 'rejected' %}selected{% endif %}>Rejected</option>
+          <option value="needs_info" {% if default_status == 'needs_info' %}selected{% endif %}>Needs Info</option>
+        </select>
+      </div>
+      <div class="col-md-8">
+        <label for="note" class="form-label">Reviewer Note</label>
+        <textarea name="note" id="note" rows="4" class="form-control"></textarea>
+      </div>
+    </div>
+
+    <div class="mt-3">
+      <button type="submit" class="btn btn-success">Save Review</button>
+      <a href="{% url 'applications:officer_dashboard' %}" class="btn btn-secondary ms-2">Back</a>
+    </div>
+  </form>
+
+  <!-- Previous reviews -->
+  <hr class="my-4">
+  <h4>Review History</h4>
+  <ul class="list-group">
+    {% for review in reviews %}
+      <li class="list-group-item">
+        <div class="d-flex justify-content-between">
+          <div>
+            <strong>{{ review.reviewer.get_full_name|default:review.reviewer.username|default:"Unknown Reviewer" }}</strong>
+            <span class="badge bg-secondary ms-2">{{ review.get_status_display }}</span>
+            <div class="text-muted small">{{ review.created_at|date:"d M Y H:i" }}{% if review.decision_date %} • Decision: {{ review.decision_date|date:"d M Y H:i" }}{% endif %}</div>
+          </div>
+        </div>
+        <p class="mt-2 mb-0">{{ review.note }}</p>
+      </li>
+    {% empty %}
+      <li class="list-group-item">No reviews yet.</li>
+    {% endfor %}
+  </ul>
+
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}About-Gerson Solulu Scholarship{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4">
+    <div class="container text-center py-5">
+        <h1 class="display-5">About Gerson Solulu Scholarship</h1>
+        <p class="lead mx-auto" style="max-width:800px;">
+            The Gerson Solulu Scholarship Scheme supports Papua New Guinean students who demonstrate academic potential and financial need.
+            We partner with institutions to make higher learning accessible and to build leaders for local communities.
+        </p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <section class="mb-4">
+                <h2 class="h4">Our Mission</h2>
+                <p>
+                    To provide financial support, mentoring and opportunities for talented students from underserved communities so they can complete tertiary education and contribute to national development.
+                </p>
+            </section>
+
+            <section class="mb-4">
+                <h2 class="h4">What We Fund</h2>
+                <ul class="list-check">
+                    <li>Tuition and fees</li>
+                    <li>Mentorship and career guidance</li>
+                </ul>
+            </section>
+
+            <section class="mb-4">
+                <h2 class="h4">How to Apply</h2>
+                <p>
+                    Applications open annually. Check the <a href="{% url 'applications:news_list' %}">news</a> page for announcements and deadlines.
+                </p>
+            </section>
+        </div>
+
+        <aside class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h3 class="h6">Contact</h3>
+                    <p class="mb-1"><strong>Office:</strong> Morobe Provincial Administration</p>
+                    <p class="mb-1"><strong>Email:</strong> <a href="mailto:info@gssscholarship.org">info@gssscholarship.org</a></p>
+                    <p class="mb-0"><strong>Phone:</strong> +675 1234 567</p>
+                </div>
+            </div>
+
+            <div class="card mt-3 shadow-sm">
+                <div class="card-body">
+                    <h3 class="h6">Quick Links</h3>
+                    <ul class="list-unstyled mb-0">
+                        <li><a href="{% url 'applications:home' %}">Home</a></li>
+                        <li><a href="{% url 'applications:news_list' %}">News</a></li>
+                        <li><a href="{% url 'applications:signup' %}">Apply</a></li>
+                    </ul>
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
+{% endblock %}

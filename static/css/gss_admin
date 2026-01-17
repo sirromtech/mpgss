@@ -1,0 +1,80 @@
+/* busu_admin.css */
+
+/* === Global brand colors === */
+:root {
+  --busu-green: #0f9d58;   /* official green */
+  --busu-dark: #0b3d2e;    /* deep accent */
+  --busu-light: #e6f4ea;   /* background tint */
+}
+
+/* === Header / Navbar === */
+.navbar {
+  background-color: var(--busu-green) !important;
+}
+.navbar .nav-link,
+.navbar .brand-link {
+  color: #fff !important;
+  font-weight: 600;
+}
+.navbar .nav-link:hover {
+  color: var(--busu-light) !important;
+}
+
+/* === Sidebar === */
+.sidebar-dark-primary {
+  background-color: var(--busu-dark) !important;
+}
+.sidebar .nav-link {
+  color: #cce3d7 !important;
+}
+.sidebar .nav-link.active {
+  background-color: var(--busu-green) !important;
+  color: #fff !important;
+  border-radius: 6px;
+}
+
+/* === Dashboard cards === */
+.card {
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.card-header {
+  background-color: var(--busu-green) !important;
+  color: #fff !important;
+  font-weight: 600;
+}
+
+/* === Buttons === */
+.btn-primary {
+  background-color: var(--busu-green) !important;
+  border-color: var(--busu-green) !important;
+}
+.btn-primary:hover {
+  background-color: #0c7a44 !important;
+  border-color: #0c7a44 !important;
+}
+
+/* === Login page tweaks === */
+.login-page {
+  background: linear-gradient(135deg, var(--busu-green), var(--busu-dark));
+}
+.login-box .card {
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+}
+.login-logo a {
+  color: #fff !important;
+  font-weight: 700;
+}
+
+/* === Table headers === */
+.table thead th {
+  background-color: var(--busu-green);
+  color: #fff;
+}
+
+/* === Footer === */
+.main-footer {
+  background-color: var(--busu-dark);
+  color: #cce3d7;
+}

@@ -1,0 +1,92 @@
+{# templates/finance/payment_list.html #}
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Payments{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1>Payments</h1>
+
+  {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+        <li class="{{ message.tags }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Applicant</th>
+        <th>Institution</th>
+        <th>Amount (PGK)</th>
+        <th>Budget Vote</th>
+        <th>Status</th>
+        <th>Payment Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for payment in payments %}
+      <tr>
+        <td>{{ payment.id }}</td>
+        <td>{{ payment.application.full_name }}</td>
+        <td>{{ payment.application.institution.name }}</td>
+        <td class="text-right">{{ payment.amount }}</td>
+        <td>
+  {% if payment.budget_vote %}
+    {{ payment.budget_vote.vote_code }}
+  {% else %}
+    —
+  {% endif %}
+</td>
+
+        <td>{{ payment.get_status_display }}</td>
+        <td>{{ payment.payment_date|date:"Y-m-d" }}</td>
+        <td>
+          <a class="btn btn-sm" href="{% url 'finance:payment_detail' payment.id %}">View</a>
+
+          {# Quick POST actions: commit / mark paid / cancel #}
+          <form action="{% url 'finance:commit_payment' payment.id %}" method="post" style="display:inline">
+            {% csrf_token %}
+            <button class="btn btn-sm" type="submit">Commit</button>
+          </form>
+
+          <form action="{% url 'finance:mark_payment_paid' payment.id %}" method="post" style="display:inline">
+            {% csrf_token %}
+            <input type="hidden" name="batch_number" value="">
+            <button class="btn btn-sm" type="submit">Mark Paid</button>
+          </form>
+
+          <form action="{% url 'finance:cancel_payment' payment.id %}" method="post" style="display:inline">
+            {% csrf_token %}
+            <button class="btn btn-sm btn-danger" type="submit">Cancel</button>
+          </form>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="8">No payments found.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {# Pagination (if provided by view) #}
+  {% if is_paginated %}
+  <nav aria-label="Page navigation">
+    <ul class="pagination">
+      {% if page_obj.has_previous %}
+        <li><a href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+      {% endif %}
+      <li>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</li>
+      {% if page_obj.has_next %}
+        <li><a href="?page={{ page_obj.next_page_number }}">Next</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
+</div>
+{% endblock %}
