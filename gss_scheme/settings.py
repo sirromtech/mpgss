@@ -84,11 +84,17 @@ MEDIA_URL = f"https://0f71abb008d0d253aaca4b2507969384.r2.cloudflarestorage.com/
 
 SITE_ID =1
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://mpgss-ycle.onrender.com",
+    "https://mpgss.org",
+    "https://www.mpgss.org",
+]
+
+
 # ALLAUTH
 ACCOUNT_LOGIN_METHODS = {"email", "username"}
 ACCOUNT_SIGNUP_FIELDS = ["email*", "username*", "password1*", "password2*"]
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
-ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = "/login/"
 ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = "/login/"
