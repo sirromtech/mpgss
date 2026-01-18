@@ -1,7 +1,7 @@
 # applications/urls.py
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from .views_media import secure_document
+from .views_media import secure_document, view_document
 from . import views, views_review
 
 app_name = "applications"
