@@ -374,12 +374,12 @@ def scan_result(request, task_id):
 
 @login_required
 def choose_application_type(request):
-    profile = ApplicantProfile.objects.get(user=request.user)
+    profile, _ = ApplicantProfile.objects.get_or_create(user=request.user)
 
-    return render(request, 'applications/choose_application_type.html', {
-        'profile': profile
+    return render(request, "applications/choose_application_type.html", {
+        "profile": profile,
     })
-
+    
 @login_required
 def create_continuing_application(request):
     cfg = ApplicationConfig.get_solo()
