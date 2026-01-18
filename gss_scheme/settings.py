@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY
 SECRET_KEY = 'a14fcabb-36a9-4bb1-bf3c-e7d78f2dfc21'
-DEBUG = False
+DEBUG = True
 
 # Render provides RENDER_EXTERNAL_HOSTNAME automatically
 
