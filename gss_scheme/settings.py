@@ -163,6 +163,17 @@ CACHES = {
     }
 }
 
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "applications.storage.NonStrictManifestStaticFilesStorage",
+    },
+    "default": {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+    },
+}
+
+
+
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
 EMAIL_HOST = "mail.privateemail.com"
@@ -190,14 +201,7 @@ STATICFILES_DIRS = []
 if (BASE_DIR / "static").exists():
     STATICFILES_DIRS = [BASE_DIR / "static"]
 
-STORAGES = {
-    "staticfiles": {
-        "BACKEND": "core.storage.NonStrictManifestStaticFilesStorage",
-    },
-    "default": {
-        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
-    },
-}
+
 
 
 # MEDIA
