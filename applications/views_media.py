@@ -30,7 +30,7 @@ def view_document(request, key):
     if not can_view_documents(request.user):
         raise Http404()
 
-    url = generate_signed_url(key, expiry=300)
+    url = generate_signed_url(key, expires=300)
     return redirect(url)
 
 
