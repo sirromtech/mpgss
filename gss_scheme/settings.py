@@ -5,13 +5,15 @@ import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Initialise environ
+env = environ.Env()
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))  # optional for local dev
+
 # SECURITY
-SECRET_KEY = 'a14fcabb-36a9-4bb1-bf3c-e7d78f2dfc21'
-DEBUG = True
+SECRET_KEY = env("DJANGO_SECRET_KEY")
+DEBUG = env.bool("DJANGO_DEBUG", default=False)
 
 # Render provides RENDER_EXTERNAL_HOSTNAME automatically
-
-
 RENDER_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
 
 ALLOWED_HOSTS = [
@@ -25,10 +27,8 @@ ALLOWED_HOSTS = [
 if RENDER_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_HOSTNAME)
 
-
 # APPLICATIONS
 INSTALLED_APPS = [
-   # "jazzmin",
     "storages",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -36,15 +36,12 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
     "institutions",
     "applications",
     "finance",
-
     "crispy_forms",
     "crispy_bootstrap5",
     "widget_tweaks",
-
     "django.contrib.sites",
     "allauth",
     "allauth.account",
@@ -58,36 +55,25 @@ AUTHENTICATION_BACKENDS = (
     "allauth.account.auth_backends.AuthenticationBackend",
 )
 
+# Cloudflare R2 credentials
+AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
+CLOUDFLARE_ACCOUNT_ID = env("CLOUDFLARE_ACCOUNT_ID")
+AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME")
+AWS_S3_ENDPOINT_URL = env("AWS_S3_ENDPOINT_URL")
 
-# Cloudflare R2 credentials (store securely in environment variables!)
-AWS_ACCESS_KEY_ID = "f0a97eed388f189a31045f485e7cef9d"
-AWS_SECRET_ACCESS_KEY = "R8240559df5b6f847bbee214393b782583b7b84a229577b421b59b4a1573de7b1"
-
-# Your Cloudflare account ID (from R2 dashboard)
-CLOUDFLARE_ACCOUNT_ID = "0f71abb008d0d253aaca4b2507969384"
-
-# R2 endpoint (S3-compatible)
-AWS_S3_ENDPOINT_URL = f"https://https://0f71abb008d0d253aaca4b2507969384.r2.cloudflarestorage.com"
-
-# Bucket name
-AWS_STORAGE_BUCKET_NAME = "mpgss-docs"
-
-
-# Optional: make uploaded files public
 AWS_DEFAULT_ACL = None
 AWS_QUERYSTRING_AUTH = False
 
-MEDIA_URL = f"https://0f71abb008d0d253aaca4b2507969384.r2.cloudflarestorage.com/mpgss-docs/"
+MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/"
 
-
-SITE_ID =1
+SITE_ID = 1
 
 CSRF_TRUSTED_ORIGINS = [
     "https://mpgss-ycle.onrender.com",
     "https://mpgss.org",
     "https://www.mpgss.org",
 ]
-
 
 # ALLAUTH
 ACCOUNT_LOGIN_METHODS = {"email", "username"}
@@ -120,7 +106,7 @@ WSGI_APPLICATION = "gss_scheme.wsgi.application"
 # DATABASE (Render PostgreSQL)
 DATABASES = {
     "default": dj_database_url.config(
-        default="postgresql://mpgss_admin:ZPMatQoubfADwKXEYbJhK0NdRKPVrhKn@dpg-d5lgobh4tr6s73bulvrg-a/mpgss_db",
+        default=env("DATABASE_URL"),
         conn_max_age=600,
         ssl_require=True,
     )
@@ -153,11 +139,21 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-# REDIS CACHE (Render Redis)
+# CELERY
+CELERY_BROKER_URL = env("REDIS_URL", default="redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = env("REDIS_URL", default="redis://localhost:6379/0")
+
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = env("TIME_ZONE", default="Pacific/Port_Moresby")
+CELERY_ENABLE_UTC = True
+
+# REDIS CACHE
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
+        "LOCATION": env("REDIS_URL", default="redis://localhost:6379/1"),
     }
 }
 
@@ -170,23 +166,19 @@ STORAGES = {
     },
 }
 
-
-
+# EMAIL
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-
-EMAIL_HOST = "mail.privateemail.com"
-EMAIL_PORT = 587
-
-# TLS recommended for Namecheap
-EMAIL_USE_TLS = True
-EMAIL_USE_SSL = False
-
-EMAIL_HOST_USER = "notification@mpgss.org"         # full email address
-EMAIL_HOST_PASSWORD = "admin@2026"  # mailbox password
+EMAIL_HOST = env("EMAIL_HOST")
+EMAIL_PORT = env.int("EMAIL_PORT", default=587)
+EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
+EMAIL_USE_SSL = env.bool("EMAIL_USE_SSL", default=False)
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default=EMAIL_HOST_USER)
 
 # INTERNATIONALIZATION
 LANGUAGE_CODE = "en-us"
-TIME_ZONE = "Pacific/Port_Moresby"
+TIME_ZONE = env("TIME_ZONE", default="Pacific/Port_Moresby")
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
@@ -194,13 +186,9 @@ USE_TZ = True
 # STATIC FILES
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-
 STATICFILES_DIRS = []
 if (BASE_DIR / "static").exists():
     STATICFILES_DIRS = [BASE_DIR / "static"]
-
-
-
 
 # MEDIA
 MEDIA_URL = "/media/"
@@ -217,89 +205,3 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 #TWO_PDF_API_KEY = env("TWO_PDF_API_KEY", default="")
 #TWO_PDF_API_URL = env("TWO_PDF_API_URL", default="https://api.2pdf.com/fill")
 
-# CELERY
-CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
-CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/0"
-CELERY_ACCEPT_CONTENT = ["json"]
-CELERY_TASK_SERIALIZER = "json"
-CELERY_RESULT_SERIALIZER = "json"
-CELERY_TIMEZONE = TIME_ZONE
-CELERY_ENABLE_UTC = True
-
-
-JAZZMIN_SETTINGS = {
-    "site_title": "Gerson Solulu Scholarship Admin",
-    "site_header": "GSSS Administration",
-    "site_brand": "GSSS",
-    "welcome_sign": "Welcome to the Gerson Solulu Scholarship Dashboard",
-    "copyright": "2025 Gerson Solulu Scholarship Scheme",
-
-    "site_icon": "img/logo.png",
-
-    # Global search across key models
-    "search_model": [
-        "applications.ApplicantProfile",
-        "applications.Application",
-        "applications.ApplicationReview",
-        "applications.News",
-    ],
-
-    # Top menu links
-    "topmenu_links": [
-        {"name": "Home", "url": "applications:home", "permissions": ["auth.view_user"]},
-        {"name": "Apply", "url": "applications:apply"},
-        {"name": "About", "url": "applications:about"},
-    ],
-
-    # User menu links
-    "usermenu_links": [
-        {"name": "Profile", "url": "admin:auth_user_change", "permissions": ["auth.change_user"]},
-    ],
-
-    "show_sidebar": True,
-    "navigation_expanded": True,
-
-    # Icons for apps and models
-    "icons": {
-        "auth": "fas fa-users-cog",
-        "applications.ApplicantProfile": "fas fa-id-card",
-        "applications.Application": "fas fa-file-signature",
-        "applications.ApplicationReview": "fas fa-clipboard-check",
-        "applications.News": "fas fa-newspaper",
-        "applications.FAQ": "fas fa-question-circle",
-        "applications.PolicyPage": "fas fa-balance-scale",
-             # Authentication & Authorization
-        "auth.User": "fas fa-user",              # 👤 individual user
-        "auth.Group": "fas fa-users",            # 👥 groups of users
-
-        # Finance app
-        "finance.Payment": "fas fa-money-check-alt",  # 💳 payments
-
-        # Institutions app
-        "institutions.Course": "fas fa-book-open",    # 📖 courses
-        "institutions.Institution": "fas fa-university",  # 🎓 institution name
-
-        # Social accounts
-        "socialaccount.SocialAccount": "fas fa-share-alt",       # 🔗 linked social accounts
-        "socialaccount.SocialApp": "fas fa-plug",                # 🔌 social applications
-        "socialaccount.SocialToken": "fas fa-key",
-    },
-
-    # Theme and customization
-    "theme": "default",
-    "custom_css": "css/gss_admin.css",
-    "custom_js": "js/gss_admin.js",
-    "show_ui_builder": True,
-}
-
-
-JAZZMIN_UI_TWEAKS = {
-    "navbar": "navbar-dark bg-primary",
-    "sidebar": "sidebar-dark-primary",
-    "theme": "cosmo",
-    "dark_mode_theme": "darkly",
-    "button_classes": {
-        "primary": "btn btn-primary",
-        "secondary": "btn btn-secondary",
-    },
-}
