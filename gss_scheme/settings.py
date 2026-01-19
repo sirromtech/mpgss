@@ -63,9 +63,22 @@ AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME")
 AWS_S3_ENDPOINT_URL = env("AWS_S3_ENDPOINT_URL")
 
 AWS_DEFAULT_ACL = None
-AWS_QUERYSTRING_AUTH = False
 
-MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/"
+AWS_S3_REGION_NAME = "auto"
+AWS_S3_SIGNATURE_VERSION = "s3v4"
+AWS_S3_ADDRESSING_STYLE = "path"
+
+AWS_QUERYSTRING_AUTH = True   # Keep files private
+MEDIA_URL = "/media/"  
+
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "applications.storage.NonStrictManifestStaticFilesStorage",
+    },
+    "default": {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+    },
+}
 
 SITE_ID = 1
 
@@ -157,14 +170,6 @@ CACHES = {
     }
 }
 
-STORAGES = {
-    "staticfiles": {
-        "BACKEND": "applications.storage.NonStrictManifestStaticFilesStorage",
-    },
-    "default": {
-        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
-    },
-}
 
 # EMAIL
 #EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
