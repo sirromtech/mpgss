@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 
-def trigger_swiftmassive_event(email, event_name, data_dict):
+def trigger_swiftmassive_event(email, event_name, data):
 
     """
     Core function to ping Swiftmassive API.
@@ -33,7 +33,7 @@ def trigger_swiftmassive_event(email, event_name, data_dict):
     
     # Merge default email into the data payload
     event_payload = {"name": event_name, "email": email}
-    event_payload.update(data_dict)
+    event_payload.update(data)
 
     payload = {"events": [event_payload]}
 
