@@ -158,24 +158,27 @@ def signup_view(request):
     return render(request, 'applications/signup.html', {'crispy_form': form})
 
 
-def send_swiftmissive_event(event_name, email, variables=None):
+def send_swiftmissive_event(email, first_name, verification_link, unsubscribe_link):
     url = "https://ghz0jve3kj.execute-api.us-east-1.amazonaws.com/events"
-    event = {
-        "name": event_name,
-        "email": email,
+    payload = {
+        "events": [
+            {
+                "name": "Welcome_email",   # 👈 matches your campaign event name
+                "email": email,
+                "user.first_name": first_name,
+                "verification_link": verification_link,
+                "unsubscribe_link": unsubscribe_link
+            }
+        ]
     }
-    if variables:
-        event.update(variables)
-
-    payload = {"events": [event]}
     headers = {
         "x-api-key": settings.SWIFTMISSIVE_API_KEY,
         "Content-Type": "application/json"
     }
-
     response = requests.post(url, json=payload, headers=headers)
-    print("SwiftMissive response:", response.status_code, response.text)  # 👈 log output
+    print("SwiftMissive response:", response.status_code, response.text)
     return response.status_code, response.text
+
 
 
 def verify_email(request, uidb64, token):
@@ -813,7 +816,7 @@ def user_dashboard(request):
         if app.is_continuing:
             documents = [
                 ('Academic Transcript', app.transcript),
-                ('School Fee Structure', app.school_fee_structure),
+               #('School Fee Structure', app.school_fee_structure),
                 ('Student ID Card', app.id_card),
             ]
             template = 'applications/continuing_dashboard.html'
@@ -879,7 +882,7 @@ def continuing_dashboard(request):
     for app in applications:
         documents = [
             ('Academic Transcript', app.transcript),
-            ('School Fee Structure', app.school_fee_structure),
+           #('School Fee Structure', app.school_fee_structure),
             ('Student ID Card', app.id_card),
         ]
 
@@ -926,7 +929,7 @@ def view_review(request, pk):
     if application.is_continuing:
         documents = {
             "Academic Transcript": application.transcript,
-            "Fee Structure": application.school_fee_structure,
+            #"Fee Structure": application.school_fee_structure,
             "ID Card": application.id_card,
             #"Face Photo": getattr(application, "face_photo", None),
         }
@@ -954,31 +957,6 @@ def view_review(request, pk):
 
 
 
-
-#Email password creation
-
-#@receiver(user_logged_in)
-#def send_password_setup_email(sender, request, user, **kwargs):
-#    if not user.has_usable_password():
-#        setup_url = request.build_absolute_uri(reverse('applications:set_password'))
-#        send_mail(
-#            subject='Set Your Password for GSSS Portal',
-#            message=f'Hi {user.first_name},\n\nYou signed in with Google. To enable password login, please set your password here:\n{setup_url}',
-#            from_email='noreply@gsss.com',
-#            recipient_list=[user.email],
-#            fail_silently=False,
-#        )
-
-#@login_required
-#def set_password_view(request):
-#    form = SetPasswordForm(request.user, request.POST or None)
-#    if request.method == 'POST' and form.is_valid():
-#        form.save()
-#        return redirect('applications:dashboard')  # or wherever you want to go
-#    return render(request, 'applications/set_password.html', {'form': form})
-
-
-# Try to import a News model if your app defines one.
 try:
     from .models import News
 except Exception:
