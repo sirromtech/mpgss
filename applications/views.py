@@ -48,7 +48,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 import requests
-
+from .forms import SignupForm
 
 logger = logging.getLogger(__name__)
 
@@ -261,6 +261,7 @@ def register_view(request):
 
 def register(request):
     if request.method == "POST":
+        form = SignupForm(request.POST)
         token = request.POST.get("cf-turnstile-response")
         secret_key = settings.CLOUDFLARE_TURNSTILE_SECRET_KEY
 
@@ -268,18 +269,24 @@ def register(request):
         data = {
             "secret": secret_key,
             "response": token,
-            "remoteip": request.META.get("REMOTE_ADDR")
+            "remoteip": request.META.get("REMOTE_ADDR"),
         }
-
         result = requests.post(verify_url, data=data).json()
 
-        if result.get("success"):
-            # ✅ Proceed with registration
-            return HttpResponse("Registration successful!")
+        if result.get("success") and form.is_valid():
+            form.save()
+            messages.success(request, "Account created successfully!")
+            return redirect("applications:login")
         else:
-            # ❌ Block registration
-            return HttpResponse("Verification failed. Please try again.")
-    return render(request, "signup.html")
+            messages.error(request, "Verification failed. Please try again.")
+    else:
+        form = SignupForm()
+
+    return render(request, "register.html", {
+        "form": form,
+        "CLOUDFLARE_TURNSTILE_SITE_KEY": settings.CLOUDFLARE_TURNSTILE_SITE_KEY,
+    })
+
 
 
 @require_http_methods(["GET", "POST"])
