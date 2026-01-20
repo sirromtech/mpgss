@@ -586,22 +586,22 @@ def export_applications_csv(request):
     Accepts GET filters: q (search), status, institution_id (optional).
     """
     q = request.GET.get('q', '').strip()
-    status = request.GET.get('status', '').strip()
-    institution_id = request.GET.get('institution_id')  # optional
+   status = (request.GET.get("status") or "").strip().upper()
 
-    qs = Application.objects.select_related('applicant__user', 'institution', 'course').order_by('institution__name', 'applicant__user__last_name')
+# Force status selection so it won't export everything by accident
+    if not status:
+        return HttpResponse("Please select a status to export (APPROVED / REJECTED / PENDING).", status=400)
 
-    if q:
-        qs = qs.filter(
-            Q(applicant__user__first_name__icontains=q) |
-            Q(applicant__user__last_name__icontains=q) |
-            Q(institution__name__icontains=q) |
-            Q(applicant__user__email__icontains=q)
-        )
-    if status:
-        qs = qs.filter(status=status)
-    if institution_id:
-        qs = qs.filter(institution_id=institution_id)
+# If you use constants in your model, prefer those.
+# Otherwise leave the strings as shown.
+    allowed_statuses = {"APPROVED", "REJECTED", "PENDING"}
+    if status not in allowed_statuses:
+    return HttpResponse(f"Invalid status '{status}'. Use APPROVED / REJECTED / PENDING.", status=400)
+
+    qs = qs.filter(status=status)
+
+        if institution_id:
+            qs = qs.filter(institution_id=institution_id)
 
     # Group by institution in Python to write subtotals in order
     # Build a mapping: institution -> list of applications

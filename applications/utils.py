@@ -4,11 +4,45 @@ import logging
 import unicodedata
 import re
 from pathlib import Path
-
+import requests
+import os
+import json
 from django.conf import settings
 from django.contrib.staticfiles import finders
 
 logger = logging.getLogger(__name__)
+
+
+
+def trigger_swiftmassive_event(email, event_name, data_dict):
+    """
+    Core function to ping Swiftmassive API.
+    """
+    url = "https://ghz0jve3kj.execute-api.us-east-1.amazonaws.com/events"
+    api_key = os.environ.get('SWIFTMASSIVE_API_KEY')
+    
+    if not api_key:
+        logger.error("SWIFTMASSIVE_API_KEY not found in environment.")
+        return False
+
+    headers = {
+        "x-api-key": api_key,
+        "Content-Type": "application/json"
+    }
+    
+    # Merge default email into the data payload
+    event_payload = {"name": event_name, "email": email}
+    event_payload.update(data_dict)
+
+    payload = {"events": [event_payload]}
+
+    try:
+        response = requests.post(url, headers=headers, json=payload, timeout=10)
+        response.raise_for_status()
+        return True
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Swiftmassive API error: {e}")
+        return False
 
 _LEGACY_CACHE = None
 

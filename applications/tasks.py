@@ -1,83 +1,55 @@
-# applications/tasks.py
 from celery import shared_task
-from django.template.loader import render_to_string
-from django.core.mail import EmailMultiAlternatives
+from .utils import trigger_swiftmassive_event
+from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.urls import reverse
-import logging
 
-logger = logging.getLogger(__name__)
+User = get_user_model()
 
-
-@shared_task(bind=True, max_retries=3, default_retry_delay=60)
+@shared_task(bind=True, max_retries=3)
 def send_application_status_email(self, review_id):
-    """
-    Send an email to the applicant when an ApplicationReview is created or its status changes.
-    """
-    from .models import ApplicationReview  # local import avoids startup circulars
-
+    from .models import ApplicationReview
     try:
-        review = (
-            ApplicationReview.objects
-            .select_related("application__applicant__user", "reviewer", "application__institution", "application__course")
-            .get(pk=review_id)
-        )
-
+        review = ApplicationReview.objects.select_related("application__applicant__user").get(pk=review_id)
         user = review.application.applicant.user
-        to_email = (user.email or "").strip()
-        if not to_email:
-            logger.warning("No email for user=%s (review=%s). Skipping notification.", user.pk, review.pk)
-            return
-
-        applicant_name = user.get_full_name().strip() or user.username
-        application = review.application
-
-        # Build application URL (use correct view name)
-        base = getattr(settings, "SITE_URL", "").rstrip("/")
-        app_url = ""
-        try:
-            path = reverse("applications:user_dashboard")
-            app_url = f"{base}{path}" if base else path
-
-        except Exception:
-            app_url = f"{base}/applications/{application.pk}/" if base else f"/applications/{application.pk}/"
-
-        context = {
-            "applicant_name": applicant_name,
-            "user": user,
-            "application": application,
-            "review": review,
-            "app_url": app_url,
-        }
-
-        subject = render_to_string("emails/application_status_subject.txt", context).strip()
-        if not subject:
-            subject = f"Update on your application #{application.pk}"
-
-        # Render bodies
-        text_body = render_to_string("emails/application_status_notification.txt", context)
-        html_body = render_to_string("emails/application_status_notification.html", context)
-
-        from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "") or "no-reply@example.com"
-
-        email = EmailMultiAlternatives(
-            subject=subject,
-            body=text_body,              # ✅ keep plain text as-is
-            from_email=from_email,
-            to=[to_email],
+        
+        trigger_swiftmassive_event(
+            email=user.email,
+            event_name="application_status_update",
+            data_dict={
+                "first_name": user.first_name or user.username,
+                "current_status": review.status,
+                "login_url": f"{settings.SITE_URL}/dashboard/"
+            }
         )
-        if html_body and html_body.strip():
-            email.attach_alternative(html_body, "text/html")
-
-        email.send(fail_silently=False)
-        logger.info("Sent application status email for review %s to %s", review.pk, to_email)
-
-    except ApplicationReview.DoesNotExist:
-        logger.warning("ApplicationReview %s does not exist, skipping email", review_id)
-
     except Exception as exc:
-        logger.exception("Failed to send application status email for review %s", review_id)
-        try:
-            raise self.retry(exc=exc)
-        except self.MaxRetriesExceededError:
-            logger.error("Max retries exceeded for sending application status email for review %s", review_id)
+        raise self.retry(exc=exc, countdown=60)
+
+
+@shared_task(bind=True, max_retries=3)
+def send_welcome_email_task(self, user_id):
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    try:
+        user = User.objects.get(pk=user_id)
+        
+        # 1. Get the base domain from Render settings
+        # Ensure SITE_URL is "https://mpgss-ycle.onrender.com" in Render Env Vars
+        base = getattr(settings, "SITE_URL", "https://mpgss-ycle.onrender.com").rstrip("/")
+        
+        # 2. Get the path for 'login' from your urls.py
+        login_path = reverse("login") # This returns "/login/"
+        
+        # 3. Combine them into a single string to send to Swiftmassive
+        full_login_url = f"{base}{login_path}"
+        
+        trigger_swiftmassive_event(
+            email=user.email,
+            event_name="welcome_email",
+            data={
+                "first_name": user.first_name or user.username,
+                "login_url": full_login_url  # This is the string Swiftmassive will use in the href
+            }
+        )
+    except Exception as exc:
+        raise self.retry(exc=exc)
