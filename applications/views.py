@@ -49,7 +49,7 @@ from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 import requests
 from .forms import SignupForm
-from .utils import send_swiftmissive_event
+from .utils import trigger_swiftmassive_event
 
 logger = logging.getLogger(__name__)
 
