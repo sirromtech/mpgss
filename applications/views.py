@@ -596,7 +596,7 @@ def export_applications_csv(request):
 # Otherwise leave the strings as shown.
     allowed_statuses = {"APPROVED", "REJECTED", "PENDING"}
     if status not in allowed_statuses:
-    return HttpResponse(f"Invalid status '{status}'. Use APPROVED / REJECTED / PENDING.", status=400)
+        return HttpResponse(f"Invalid status '{status}'. Use APPROVED / REJECTED / PENDING.", status=400)
 
     qs = qs.filter(status=status)
 
