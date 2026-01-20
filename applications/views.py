@@ -159,9 +159,6 @@ def signup_view(request):
 
 
 def send_swiftmissive_event(event_name, email, variables=None):
-    """
-    Trigger a SwiftMissive event with optional variables.
-    """
     url = "https://ghz0jve3kj.execute-api.us-east-1.amazonaws.com/events"
     event = {
         "name": event_name,
@@ -177,7 +174,9 @@ def send_swiftmissive_event(event_name, email, variables=None):
     }
 
     response = requests.post(url, json=payload, headers=headers)
+    print("SwiftMissive response:", response.status_code, response.text)  # 👈 log output
     return response.status_code, response.text
+t
 
 
 def verify_email(request, uidb64, token):
