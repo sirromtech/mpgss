@@ -49,6 +49,7 @@ from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 import requests
 from .forms import SignupForm
+from .utils import send_swiftmissive_event
 
 logger = logging.getLogger(__name__)
 
@@ -210,11 +211,13 @@ def verify_email(request, uidb64, token):
         login(request, user)
 
         # Trigger SwiftMissive event for verification
-        send_swiftmissive_event(
+        success, resp = send_swiftmissive_event(
             "email_verified",
             user.email,
             {"user.first_name": user.first_name}
         )
+        if not success:
+            messages.warning(request, f"Email verified, but notification failed: {resp}")
 
         messages.success(request, f'Email verified! Welcome, {user.username}.')
         return redirect('apply')
@@ -224,6 +227,14 @@ def verify_email(request, uidb64, token):
 
 
 def register(request):
+    """
+    Handles user registration:
+    - Validates Cloudflare Turnstile
+    - Creates inactive user
+    - Generates email verification link
+    - Sends SwiftMissive 'Welcome_email' event
+    - Redirects to login until verified
+    """
     if request.method == "POST":
         form = SignupForm(request.POST)
         token = request.POST.get("cf-turnstile-response")
@@ -238,15 +249,38 @@ def register(request):
         result = requests.post(verify_url, data=data).json()
 
         if result.get("success") and form.is_valid():
-            form.save()
-            messages.success(request, "Account created successfully!")
+            user = form.save(commit=False)
+            user.is_active = False  # require email verification
+            user.save()
+
+            # Generate verification link
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            verification_link = request.build_absolute_uri(
+                reverse('verify_email', kwargs={'uidb64': uid, 'token': token})
+            )
+
+            # Trigger SwiftMissive welcome event
+            success, resp = send_swiftmissive_event(
+                "Welcome_email",
+                user.email,
+                {
+                    "user.first_name": user.first_name,
+                    "verification_link": verification_link,
+                    "unsubscribe_link": "https://mpgss-ycle.onrender.com/unsubscribe/abc123"
+                }
+            )
+            if not success:
+                messages.warning(request, f"Account created, but welcome email failed: {resp}")
+
+            messages.success(request, "Registration successful! Please check your email to verify your account.")
             return redirect("applications:login")
         else:
             messages.error(request, "Verification failed. Please try again.")
     else:
         form = SignupForm()
 
-    return render(request, "register.html", {
+    return render(request, "signup.html", {
         "form": form,
         "CLOUDFLARE_TURNSTILE_SITE_KEY": settings.CLOUDFLARE_TURNSTILE_SITE_KEY,
     })

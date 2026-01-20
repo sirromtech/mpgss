@@ -10,21 +10,20 @@ import json
 from django.conf import settings
 from django.contrib.staticfiles import finders
 
+
 logger = logging.getLogger(__name__)
 
-
-
 def trigger_swiftmassive_event(email, event_name, data):
-
     """
-    Core function to ping Swiftmassive API.
+    Core function to ping SwiftMassive API.
+    Sends an event with variables and logs the response.
     """
     url = "https://ghz0jve3kj.execute-api.us-east-1.amazonaws.com/events"
     api_key = os.environ.get('SWIFTMASSIVE_API_KEY')
     
     if not api_key:
         logger.error("SWIFTMASSIVE_API_KEY not found in environment.")
-        return False
+        return False, "Missing API key"
 
     headers = {
         "x-api-key": api_key,
@@ -33,19 +32,26 @@ def trigger_swiftmassive_event(email, event_name, data):
     
     # Merge default email into the data payload
     event_payload = {"name": event_name, "email": email}
-    event_payload.update(data)
+    if data:
+        event_payload.update(data)
 
     payload = {"events": [event_payload]}
 
     try:
         response = requests.post(url, headers=headers, json=payload, timeout=10)
         response.raise_for_status()
-        return True
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Swiftmassive API error: {e}")
-        return False
 
-_LEGACY_CACHE = None
+        # Debug logging
+        logger.info("SwiftMassive event triggered successfully")
+        logger.debug("Payload sent: %s", payload)
+        logger.debug("Response code: %s", response.status_code)
+        logger.debug("Response body: %s", response.text)
+
+        return True, response.text
+    except requests.exceptions.RequestException as e:
+        logger.error(f"SwiftMassive API error: {e}")
+        return False, str(e)
+
 
 
 def load_legacy_json(path="data/legacy_students.json", use_cache=True):
