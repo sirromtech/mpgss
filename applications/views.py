@@ -259,6 +259,29 @@ def register_view(request):
     return render(request, 'applications/signup.html', {'form': form})
 
 
+def register(request):
+    if request.method == "POST":
+        token = request.POST.get("cf-turnstile-response")
+        secret_key = settings.CLOUDFLARE_TURNSTILE_SECRET_KEY
+
+        verify_url = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
+        data = {
+            "secret": secret_key,
+            "response": token,
+            "remoteip": request.META.get("REMOTE_ADDR")
+        }
+
+        result = requests.post(verify_url, data=data).json()
+
+        if result.get("success"):
+            # ✅ Proceed with registration
+            return HttpResponse("Registration successful!")
+        else:
+            # ❌ Block registration
+            return HttpResponse("Verification failed. Please try again.")
+    return render(request, "signup.html")
+
+
 @require_http_methods(["GET", "POST"])
 def confirm_legacy(request, no: int):
     legacy = find_legacy_by_no(no)
