@@ -588,12 +588,10 @@ def export_applications_csv(request):
     q = request.GET.get('q', '').strip()
     status = (request.GET.get("status") or "").strip().upper()
 
-# Force status selection so it won't export everything by accident
+    # Force status selection so it won't export everything by accident
     if not status:
         return HttpResponse("Please select a status to export (APPROVED / REJECTED / PENDING).", status=400)
 
-# If you use constants in your model, prefer those.
-# Otherwise leave the strings as shown.
     allowed_statuses = {"APPROVED", "REJECTED", "PENDING"}
     if status not in allowed_statuses:
         return HttpResponse(f"Invalid status '{status}'. Use APPROVED / REJECTED / PENDING.", status=400)
@@ -661,6 +659,7 @@ def export_applications_csv(request):
     writer.writerow(['', '', '', '', '', 'Grand total', format_currency(grand_total)])
 
     return response
+
 
 
 def is_scholarship_officer(user):
