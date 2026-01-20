@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 def trigger_swiftmassive_event(email, event_name, data_dict):
+
     """
     Core function to ping Swiftmassive API.
     """
