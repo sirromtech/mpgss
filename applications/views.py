@@ -176,7 +176,6 @@ def send_swiftmissive_event(event_name, email, variables=None):
     response = requests.post(url, json=payload, headers=headers)
     print("SwiftMissive response:", response.status_code, response.text)  # 👈 log output
     return response.status_code, response.text
-t
 
 
 def verify_email(request, uidb64, token):
