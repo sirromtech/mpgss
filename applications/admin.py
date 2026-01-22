@@ -44,7 +44,7 @@ class ApplicantProfileAdmin(admin.ModelAdmin):
     autocomplete_fields = ()
     fieldsets = (
         ('Account', {
-            'fields': ('user', 'photo', 'phone_number', 'postal_address')
+            'fields': ('user', 'photo', 'postal_address')
         }),
         ('Personal Information', {
             'fields': (
