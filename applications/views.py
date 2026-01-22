@@ -189,41 +189,7 @@ def send_swiftmissive_event(event_name, email, variables=None):
     return response.status_code, response.text
 
 
-def verify_email(request, uidb64, token):
-    """
-    Handles email verification:
-    - Decodes user ID
-    - Validates token
-    - Activates user and logs them in
-    - Sends SwiftMissive 'email_verified' event
-    - Redirects to apply page
-    """
-    User = get_user_model()
-    try:
-        uid = urlsafe_base64_decode(uidb64).decode()
-        user = User.objects.get(pk=uid)
-    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-        user = None
 
-    if user is not None and default_token_generator.check_token(user, token):
-        user.is_active = True
-        user.save()
-        login(request, user)
-
-        # Trigger SwiftMissive event for verification
-        success, resp = send_swiftmissive_event(
-            "email_verified",
-            user.email,
-            {"user.first_name": user.first_name}
-        )
-        if not success:
-            messages.warning(request, f"Email verified, but notification failed: {resp}")
-
-        messages.success(request, f'Email verified! Welcome, {user.username}.')
-        return redirect('apply')
-    else:
-        messages.error(request, 'Verification link is invalid or expired.')
-        return redirect('applications:login')
 
 
 def register(request):
@@ -254,31 +220,6 @@ def register(request):
             user.save()
 
             # Generate verification link
-            token = default_token_generator.make_token(user)
-            uid = urlsafe_base64_encode(force_bytes(user.pk))
-            verification_link = request.build_absolute_uri(
-                reverse('verify_email', kwargs={'uidb64': uid, 'token': token})
-            )
-
-            # Trigger SwiftMissive welcome event
-            success, resp = send_swiftmissive_event(
-                "Welcome_email",
-                user.email,
-                {
-                    "user.first_name": user.first_name,
-                    "verification_link": verification_link,
-                    "unsubscribe_link": "https://mpgss-ycle.onrender.com/unsubscribe/abc123"
-                }
-            )
-            if not success:
-                messages.warning(request, f"Account created, but welcome email failed: {resp}")
-
-            messages.success(request, "Registration successful! Please check your email to verify your account.")
-            return redirect("applications:login")
-        else:
-            messages.error(request, "Verification failed. Please try again.")
-    else:
-        form = SignupForm()
 
     return render(request, "signup.html", {
         "form": form,
