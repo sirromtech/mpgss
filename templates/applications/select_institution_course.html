@@ -6,6 +6,7 @@
 <form method="post" action="{% url 'applications:confirm_legacy' %}">
   {% csrf_token %}
   <input type="hidden" name="legacy_id" value="{{ legacy.id }}">
+
   <div class="mb-3">
     <label for="institution" class="form-label">Institution</label>
     <select name="institution" id="institution" class="form-select" required>
@@ -32,7 +33,64 @@
            min="1" max="10" value="{{ legacy.year_of_study|default:'' }}" required>
   </div>
 
-
   <button type="submit" class="btn btn-primary">Confirm Application</button>
 </form>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const instSelect = document.getElementById("institution");
+  const courseSelect = document.getElementById("course");
+
+  if (!instSelect || !courseSelect) return;
+
+  // If you want to preserve the currently selected course after reloads
+  const initiallySelectedCourse = courseSelect.value;
+
+  function setCourseOptionsLoading() {
+    courseSelect.disabled = true;
+    courseSelect.innerHTML = '<option value="">Loading courses...</option>';
+  }
+
+  function setCourseOptionsEmpty() {
+    courseSelect.disabled = false;
+    courseSelect.innerHTML = '<option value="">-- Select Course --</option>';
+  }
+
+  instSelect.addEventListener("change", function () {
+    const instId = this.value;
+
+    if (!instId) {
+      setCourseOptionsEmpty();
+      return;
+    }
+
+    setCourseOptionsLoading();
+
+    fetch(`/api/courses/?institution_id=${instId}`)
+      .then(res => {
+        if (!res.ok) throw new Error("Bad response");
+        return res.json();
+      })
+      .then(data => {
+        setCourseOptionsEmpty();
+
+        data.forEach(course => {
+          const opt = document.createElement("option");
+          opt.value = course.id;
+          opt.textContent = `${course.name} (${course.code})`;
+          courseSelect.appendChild(opt);
+        });
+
+        // Try re-selecting the original option (if still valid for this institution)
+        if (initiallySelectedCourse) {
+          courseSelect.value = initiallySelectedCourse;
+        }
+      })
+      .catch(() => {
+        courseSelect.disabled = false;
+        courseSelect.innerHTML = '<option value="">Error loading courses</option>';
+      });
+  });
+});
+</script>
 {% endblock %}
