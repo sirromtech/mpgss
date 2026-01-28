@@ -281,123 +281,50 @@ def create_application(request):
     cfg = ApplicationConfig.get_solo()
     if cfg.is_closed_now():
         return applications_closed_response(request)
+
     profile, created = ApplicantProfile.objects.get_or_create(user=request.user)
 
-    # Prevent duplicate new-student applications
     if Application.objects.filter(applicant=profile, is_continuing=False).exists():
         messages.info(request, "You have already submitted a new student application.")
-        return redirect('applications:user_dashboard')
+        return redirect("applications:user_dashboard")
 
-    if request.method == 'POST':
+    if request.method == "POST":
         app_form = ApplicationForm(request.POST, request.FILES)
         profile_form = ApplicantProfileForm(request.POST, instance=profile)
 
         if app_form.is_valid() and profile_form.is_valid():
             profile_form.save()
+
             application = app_form.save(commit=False)
             application.applicant = profile
             application.is_continuing = False
             application.save()
-            
 
+            # ---- SIMPLE SYNCHRONOUS SCAN ----
+            try:
+                scan_result = scan_documents_for_eligibility(application)
+                application.reviewer_note = scan_result
+            except Exception as exc:
+                application.reviewer_note = f"Scan failed: {exc}"
 
-            task_id = str(uuid.uuid4())
-            progress_store[task_id] = {"progress": 0, "message": "Starting scan..."}
+            application.save(update_fields=["reviewer_note"])
+            # --------------------------------
 
-            _run_scan_background(application, task_id)
-
-            return redirect('applications:scanning', task_id=task_id)
+            return redirect("applications:documents_submitted")
 
     else:
         app_form = ApplicationForm()
         profile_form = ApplicantProfileForm(instance=profile)
 
-    return render(request, 'applications/application_form.html', {
-        'app_form': app_form,
-        'profile_form': profile_form,
-        'profile': profile,
+    return render(request, "applications/application_form.html", {
+        "app_form": app_form,
+        "profile_form": profile_form,
+        "profile": profile,
     })
 
 @login_required
 def documents_submitted(request):
     return render(request, "applications/documents_submitted.html")
-
-
-
-# -- AI SCAN 
-progress_store = {}
-
-def _progress_callback(task_id, progress, message):
-    progress_store[task_id] = {"progress": progress, "message": message}
-
-def _run_scan_background(application, task_id):
-    """Runs the AI scan and updates progress_store safely."""
-    try:
-        progress_store[task_id] = {"progress": 1, "message": "Starting scan..."}
-        # Call the scanner with the callback so it can update progress
-        scan_result = scan_documents_for_eligibility(application, task_id=task_id, progress_callback=_progress_callback)
-
-        # Save result
-        application.reviewer_note = scan_result
-        application.save()
-
-        # Mark complete
-        progress_store[task_id] = {"progress": 100, "message": "Scan complete."}
-
-    except Exception as exc:
-        # Log the exception (use your logger); ensure frontend sees an error message
-        progress_store[task_id] = {"progress": 0, "message": f"Scan failed: {str(exc)}"}
-
-
-@login_required
-def scanning(request, task_id):
-    return render(request, "applications/scanning.html", {"task_id": task_id})
-
-
-@login_required
-def scan_progress(request, task_id):
-    """
-    Returns JSON progress for the logged-in user.
-    """
-    data = get_progress(task_id) or {}
-
-    # Optional safety: if your progress payload includes user_id, enforce it.
-    # if data.get("user_id") and data["user_id"] != request.user.id:
-    #     return JsonResponse({"progress": 0, "message": "Unauthorized"}, status=403)
-
-    return JsonResponse(data)
-
-
-@login_required
-def scan_result(request, task_id):
-    """
-    Show scan results for the task.
-    Do NOT use .last() because it can show the wrong application.
-    Instead read application_id from progress payload.
-    """
-    data = get_progress(task_id) or {}
-
-    application_id = data.get("application_id")
-    if not application_id:
-        # If task hasn't stored app id, fall back safely (better than .last())
-        raise Http404("Scan result not ready or missing application reference.")
-
-    application = Application.objects.filter(
-        pk=application_id,
-        applicant=request.user.applicantprofile
-    ).select_related("institution", "course").first()
-
-    if not application:
-        raise Http404("Application not found for this user.")
-
-    # Your task should store scan output in progress payload
-    scan_output = data.get("result") or data.get("message") or ""
-
-    return render(request, "applications/scan_result.html", {
-        "application": application,
-        "scan_result": scan_output,
-    })
-
 
 
 @login_required

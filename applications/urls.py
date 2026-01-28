@@ -30,7 +30,7 @@ urlpatterns = [
     path("apply/", views.choose_application_type, name="apply"),
     path("apply/new/", views.create_application, name="create_application"),
     path("apply/success/", views.application_success, name="application_success"),
- 
+    path("submitted/", views.documents_submitted, name="documents_submitted"),
 
     # Student dashboards
     path("dashboard/", views.user_dashboard, name="user_dashboard"),
@@ -103,10 +103,4 @@ urlpatterns = [
     path("news_list/", views.news_list, name="news_list"),
     path("news/<int:pk>/", views.news_detail, name="news_detail"),
 
-    # ------------------------------------------------------------------
-    # AI / OCR Scanning
-    # ------------------------------------------------------------------
-    path("scanning/<str:task_id>/", views.scanning, name="scanning"),
-    path("scan-progress/<str:task_id>/", views.scan_progress, name="scan_progress"),
-    path("scan-result/<str:task_id>/", views.scan_result, name="scan_result"),
 ]
