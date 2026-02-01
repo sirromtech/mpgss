@@ -114,19 +114,15 @@
 
               <hr class="mt-4">
 
-              <h5 class="mt-2 mb-0">Required Documents</h5>
+             <h5 class="mt-2 mb-0">Required Documents</h5>
 
-              <div class="col-md-6">
-                {{ form.transcript|as_crispy_field }}
-                <div class="form-text">Upload your latest transcript (PDF/JPG/PNG). Max 10MB.</div>
-                <div id="transcriptPreview" class="mt-2"></div>
-              </div>
-
-              <div class="col-md-6">
-                {{ form.id_card|as_crispy_field }}
-                <div class="form-text">Upload student ID (PDF/JPG/PNG). Max 10MB.</div>
-                <div id="idCardPreview" class="mt-2"></div>
-              </div>
+<div class="col-md-12">
+    {{ form.documents_pdf|as_crispy_field }}
+    <div class="form-text">
+        Upload all required documents as <strong>one PDF</strong>. Max 10MB.
+    </div>
+    <div id="documentsPdfPreview" class="mt-2"></div>
+</div>
 
             </div>
 
@@ -151,30 +147,25 @@
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-  function previewFile(input, previewId) {
-    const file = input.files && input.files[0];
-    const target = document.getElementById(previewId);
-    if (!file || !target) return;
+  (function () {
+    const input = document.querySelector('input[name="documents_pdf"]');
+    const preview = document.getElementById('documentsPdfPreview');
+    if (!input || !preview) return;
 
-    const url = URL.createObjectURL(file);
+    input.addEventListener('change', function () {
+      preview.innerHTML = "";
+      const file = this.files && this.files[0];
+      if (!file) return;
 
-    if (file.type === "application/pdf") {
-      target.innerHTML = `<embed src="${url}" type="application/pdf" width="100%" height="320px" />`;
-    } else if (file.type && file.type.startsWith("image/")) {
-      target.innerHTML = `<img src="${url}" class="img-thumbnail" style="max-width:220px;" alt="Preview">`;
-    } else {
-      target.innerHTML = `<div class="text-muted small">Selected: ${file.name}</div>`;
-    }
-  }
+      if (file.type !== "application/pdf") {
+        preview.innerHTML = "<div class='text-danger small'>Only PDF files are allowed.</div>";
+        return;
+      }
 
-  const transcriptInput = document.getElementById("id_transcript");
-  const idCardInput = document.getElementById("id_id_card");
-  const photoInput = document.getElementById("id_photo");
+      const url = URL.createObjectURL(file);
+      preview.innerHTML = `<embed src="${url}" type="application/pdf" width="100%" height="360px" />`;
+    });
+  })();
 
-  if (transcriptInput) transcriptInput.addEventListener("change", () => previewFile(transcriptInput, "transcriptPreview"));
-  if (idCardInput) idCardInput.addEventListener("change", () => previewFile(idCardInput, "idCardPreview"));
-  if (photoInput) photoInput.addEventListener("change", () => previewFile(photoInput, "profilePhotoPreview"));
-});
 </script>
 {% endblock %}

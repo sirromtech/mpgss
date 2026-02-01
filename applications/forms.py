@@ -89,55 +89,122 @@ class ApplicantProfileForm(forms.ModelForm):
 
 
 class ApplicationForm(forms.ModelForm):
-    institution = forms.ModelChoiceField(queryset=None)
+    institution = forms.ModelChoiceField(queryset=None, required=True)
     course = forms.ModelChoiceField(queryset=None, required=False)
+
 
     class Meta:
         model = Application
         fields = [
-            'institution', 'course', 'year_of_study',
-            'grade_12_certificate', 'transcript', 'acceptance_letter',
-            'school_fee_structure', 'id_card',
-            'character_reference_1', 'character_reference_2',
-            'statdec',
-            'parent_employed', 'parent_company', 'parent_job_title',
-            'parent_salary_range', 'parent_income_source', 'parent_annual_income',
-            'student_employed', 'student_company', 'student_job_title',
-            'student_salary_range',
-            'origin_province', 'origin_district', 'origin_ward',
-            'residency_province', 'residency_district', 'residency_ward',
+            # Study details
+            "institution",
+            "course",
+            "year_of_study",
+
+            # ✅ Single PDF upload
+            "documents_pdf",
+
+            # Parent employment (MANDATORY LOGIC BELOW)
+            "parent_employed",
+            "parent_company",
+            "parent_job_title",
+            "parent_salary_range",
+            "parent_income_source",
+            "parent_annual_income",
+
+            # Student employment
+            "student_employed",
+            "student_company",
+            "student_job_title",
+            "student_salary_range",
+
+            # Origin
+            "origin_province",
+            "origin_district",
+            "origin_ward",
+
+            # Residency
+            "residency_province",
+            "residency_district",
+            "residency_ward",
         ]
+
+        widgets = {
+            "documents_pdf": forms.ClearableFileInput(
+                attrs={
+                    "class": "form-control",
+                    "accept": ".pdf",
+                }
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        Institution = apps.get_model('institutions', 'Institution')
-        Course = apps.get_model('institutions', 'Course')
 
-        self.fields['institution'].queryset = Institution.objects.all()
+        Institution = apps.get_model("institutions", "Institution")
+        Course = apps.get_model("institutions", "Course")
 
-        # Default: none until institution selected
-        self.fields['course'].queryset = Course.objects.none()
+        self.fields["institution"].queryset = Institution.objects.all()
+        self.fields["course"].queryset = Course.objects.none()
 
-        # If editing an instance, pre-load its courses
-        if self.instance and self.instance.pk and self.instance.institution_id:
-            self.fields['course'].queryset = Course.objects.filter(institution_id=self.instance.institution_id)
+        # Preload courses if editing
+        if self.instance.pk and self.instance.institution_id:
+            self.fields["course"].queryset = Course.objects.filter(
+                institution_id=self.instance.institution_id
+            )
 
-        # If POSTing, filter based on posted institution
-        inst_id = self.data.get('institution') or self.initial.get('institution')
+        # Load courses from POST
+        inst_id = self.data.get("institution") or self.initial.get("institution")
         if inst_id:
-            self.fields['course'].queryset = Course.objects.filter(institution_id=inst_id)
+            self.fields["course"].queryset = Course.objects.filter(
+                institution_id=inst_id
+            )
 
-    # Validate multiple uploads
-    def clean_grade_12_certificate(self): return validate_upload(self.cleaned_data.get('grade_12_certificate'), "Grade 12 certificate")
-    def clean_transcript(self): return validate_upload(self.cleaned_data.get('transcript'), "Transcript")
-    def clean_acceptance_letter(self): return validate_upload(self.cleaned_data.get('acceptance_letter'), "Acceptance letter")
-    def clean_school_fee_structure(self): return validate_upload(self.cleaned_data.get('school_fee_structure'), "Fee structure")
-    def clean_id_card(self): return validate_upload(self.cleaned_data.get('id_card'), "ID card")
-    def clean_character_reference_1(self): return validate_upload(self.cleaned_data.get('character_reference_1'), "Character reference 1")
-    def clean_character_reference_2(self): return validate_upload(self.cleaned_data.get('character_reference_2'), "Character reference 2")
-    def clean_statdec(self): return validate_upload(self.cleaned_data.get('statdec'), "Statutory declaration")
+    # -------------------------
+    # VALIDATION
+    # -------------------------
 
+    def clean_documents_pdf(self):
+        f = self.cleaned_data.get("documents_pdf")
+        if not f:
+            raise forms.ValidationError("You must upload a PDF containing all required documents.")
 
+        if not f.name.lower().endswith(".pdf"):
+            raise forms.ValidationError("Only PDF files are allowed.")
+
+        if f.size > 10 * 1024 * 1024:
+            raise forms.ValidationError("File size must be under 10MB.")
+
+        return f
+
+    def clean(self):
+        cleaned = super().clean()
+
+        # Parent employment logic
+        if cleaned.get("parent_employed"):
+            required = [
+                "parent_company",
+                "parent_job_title",
+                "parent_salary_range",
+                "parent_income_source",
+                "parent_annual_income",
+            ]
+            for field in required:
+                if not cleaned.get(field):
+                    self.add_error(field, "This field is required when parent is employed.")
+
+        # Student employment logic
+        if cleaned.get("student_employed"):
+            required = [
+                "student_company",
+                "student_job_title",
+                "student_salary_range",
+            ]
+            for field in required:
+                if not cleaned.get(field):
+                    self.add_error(field, "This field is required when student is employed.")
+
+        return cleaned
 
 class SignupForm(UserCreationForm):
     email = forms.EmailField(required=True, help_text="Required. Enter a valid email address.")
@@ -185,41 +252,25 @@ class ContinuingApplicationForm(forms.ModelForm):
         model = Application
         fields = [
             "year_of_study",
-            "transcript",
-            "id_card",
+            "documents_pdf",
         ]
         widgets = {
-            "year_of_study": forms.Select(attrs={"class": "form-control"}),
-
-            "transcript": forms.ClearableFileInput(attrs={
-                "class": "form-control",
-                "accept": ".pdf",
-            }),
-
-            "id_card": forms.ClearableFileInput(attrs={
-                "class": "form-control",
-                "accept": ".pdf,.jpg,.jpeg,.png",
-            }),
+            "documents_pdf": forms.ClearableFileInput(
+                attrs={
+                    "class": "form-control",
+                    "accept": ".pdf",
+                }
+            ),
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # continuing students must upload transcript + id card
-        if "transcript" in self.fields:
-            self.fields["transcript"].required = True
-        if "id_card" in self.fields:
-            self.fields["id_card"].required = True
-
-    def clean_transcript(self):
-        f = self.cleaned_data.get("transcript")
-        if f:
-            return validate_upload(f, "Transcript")
-        return f
-
-    def clean_id_card(self):
-        f = self.cleaned_data.get("id_card")
-        if f:
-            return validate_upload(f, "ID Card")
+    def clean_documents_pdf(self):
+        f = self.cleaned_data.get("documents_pdf")
+        if not f:
+            raise forms.ValidationError("You must upload a PDF containing all required documents.")
+        if not f.name.lower().endswith(".pdf"):
+            raise forms.ValidationError("Only PDF files are allowed.")
+        if f.size > 10 * 1024 * 1024:
+            raise forms.ValidationError("File size must be under 10MB.")
         return f
 
 class ContinuingProfileForm(forms.ModelForm):
@@ -288,8 +339,12 @@ class LegacyLookupForm(forms.Form):
     surname = forms.CharField(max_length=100, required=True)
     year_of_study = forms.IntegerField(required=False)
 
-
 class ContinuingTranscriptOnlyForm(forms.ModelForm):
     class Meta:
         model = Application
-        fields = ["transcript"]   # ONLY transcript
+        fields = ["documents_pdf"]
+        widgets = {
+            "documents_pdf": forms.ClearableFileInput(
+                attrs={"class": "form-control", "accept": ".pdf"}
+            )
+        }

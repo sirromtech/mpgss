@@ -156,13 +156,52 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  const transcriptInput = document.getElementById("id_transcript");
-  const idCardInput = document.getElementById("id_id_card");
-  const photoInput = document.getElementById("id_photo");
 
-  if (transcriptInput) transcriptInput.addEventListener("change", () => previewFile(transcriptInput, "transcriptPreview"));
-  if (idCardInput) idCardInput.addEventListener("change", () => previewFile(idCardInput, "idCardPreview"));
-  if (photoInput) photoInput.addEventListener("change", () => previewFile(photoInput, "profilePhotoPreview"));
-});
+  (function () {
+    const input = document.querySelector('input[name="documents_pdf"]');
+    const preview = document.getElementById('documentsPdfPreview');
+    if (!input || !preview) return;
+
+    input.addEventListener('change', function () {
+      preview.innerHTML = "";
+      const file = this.files && this.files[0];
+      if (!file) return;
+
+      if (file.type !== "application/pdf") {
+        preview.innerHTML = "<div class='text-danger small'>Please upload a PDF file.</div>";
+        return;
+      }
+
+      const url = URL.createObjectURL(file);
+      preview.innerHTML = `<embed src="${url}" type="application/pdf" width="100%" height="360px" />`;
+    });
+  })();
+
+document.addEventListener("DOMContentLoaded", function() {
+  const instSelect = document.getElementById("id_institution");
+  const courseSelect = document.getElementById("id_course");
+
+  instSelect.addEventListener("change", function() {
+    const instId = this.value;
+    courseSelect.innerHTML = '<option value="">Loading courses...</option>';
+
+    if (instId) {
+      fetch(`/api/courses/?institution_id=${instId}`)
+        .then(response => response.json())
+        .then(data => {
+          courseSelect.innerHTML = '<option value="">-- Select Course --</option>';
+          data.forEach(course => {
+            courseSelect.innerHTML += `<option value="${course.id}">${course.name} (${course.code})</option>`;
+          });
+        })
+        .catch(() => {
+          courseSelect.innerHTML = '<option value="">Error loading courses</option>';
+        });
+    } else {
+      courseSelect.innerHTML = '<option value="">-- Select Course --</option>';
+    }
+  });
+})
+
 </script>
 {% endblock %}

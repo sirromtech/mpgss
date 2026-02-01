@@ -204,17 +204,13 @@ class Application(models.Model):
     reviewer_note = models.TextField(blank=True, null=True)
     ai_summary = models.TextField(blank=True, null=True)
 
-    # New applicant documents
-    grade_12_certificate = models.FileField(upload_to='documents/certificates/', blank=True, null=True)
-    acceptance_letter = models.FileField(upload_to='documents/acceptance_letters/', blank=True, null=True)
-    character_reference_1 = models.FileField(upload_to='documents/references/', blank=True, null=True)
-    character_reference_2 = models.FileField(upload_to='documents/references/', blank=True, null=True)
-
-    # Shared documents
-    transcript = models.FileField(upload_to='documents/transcripts/', blank=True, null=True)
-    school_fee_structure = models.FileField(upload_to='documents/fee_structures/', blank=True, null=True)
-    id_card = models.FileField(upload_to='documents/ids/', blank=True, null=True)
-    statdec = models.FileField(upload_to='documents/statdec/', blank=True, null=True)
+        # New applicant documents
+    documents_pdf = models.FileField(
+        upload_to="applications/documents/",
+        blank=True,
+        null=True,
+        help_text="Upload all required documents as ONE PDF"
+    )
 
     # Parent/student employment info (already present)
     parent_employed = models.BooleanField(default=False)

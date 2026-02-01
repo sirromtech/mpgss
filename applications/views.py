@@ -676,25 +676,10 @@ def user_dashboard(request):
 
     enriched_apps = []
     for app in applications:
-        if app.is_continuing:
-            documents = [
-                ('Academic Transcript', app.transcript),
-               #('School Fee Structure', app.school_fee_structure),
-                ('Student ID Card', app.id_card),
-            ]
-            template = 'applications/continuing_dashboard.html'
-        else:
-            documents = [
-                ('Grade 12 Certificate', app.grade_12_certificate),
-                ('Academic Transcript', app.transcript),
-                ('Acceptance Letter', app.acceptance_letter),
-                ('School Fee Structure', app.school_fee_structure),
-                ('Student ID Card', app.id_card),
-                ('Character Reference 1', app.character_reference_1),
-                ('Character Reference 2', app.character_reference_2),
-                ('Statutory Declaration', app.statdec),
-            ]
-            template = 'applications/applicant_dashboard.html'
+        # ✅ single upload field for all applications (new + continuing)
+        documents = [
+            ('Uploaded Documents (PDF)', getattr(app, "documents_pdf", None)),
+        ]
 
         total_paid = Payment.objects.filter(
             application=app,
@@ -721,7 +706,7 @@ def user_dashboard(request):
         })
 
     # If all apps are continuing, use continuing dashboard
-    if all(app['app'].is_continuing for app in enriched_apps):
+    if all(item['app'].is_continuing for item in enriched_apps):
         return render(request, 'applications/continuing_dashboard.html', {
             'applications': enriched_apps,
             'profile': profile,
@@ -733,6 +718,7 @@ def user_dashboard(request):
         'profile': profile,
     })
 
+
 @login_required
 def continuing_dashboard(request):
     profile = ApplicantProfile.objects.filter(user=request.user).first()
@@ -743,10 +729,9 @@ def continuing_dashboard(request):
 
     enriched_apps = []
     for app in applications:
+        # ✅ single upload field
         documents = [
-            ('Academic Transcript', app.transcript),
-           #('School Fee Structure', app.school_fee_structure),
-            ('Student ID Card', app.id_card),
+            ('Uploaded Documents (PDF)', getattr(app, "documents_pdf", None)),
         ]
 
         total_paid = Payment.objects.filter(
@@ -780,7 +765,7 @@ def continuing_dashboard(request):
 
 
 @login_required
-@user_passes_test(lambda u: u.groups.filter(name__in=["Reviewer","Scholarship Officers"]).exists())
+@user_passes_test(lambda u: u.groups.filter(name__in=["Reviewer", "Scholarship Officers"]).exists())
 def view_review(request, pk):
     application = get_object_or_404(
         Application.objects.select_related("applicant__user", "institution", "course"),
@@ -789,26 +774,17 @@ def view_review(request, pk):
 
     reviews = application.reviews.select_related("reviewer").order_by("-created_at")
 
-    if application.is_continuing:
-        documents = {
-            "Academic Transcript": application.transcript,
-            #"Fee Structure": application.school_fee_structure,
-            "ID Card": application.id_card,
-            #"Face Photo": getattr(application, "face_photo", None),
-        }
-        template = "officer/review_continuing.html"
-    else:
-        documents = {
-            "Grade 12 Certificate": application.grade_12_certificate,
-            "Transcript": application.transcript,
-            "Acceptance Letter": application.acceptance_letter,
-            "Fee Structure": application.school_fee_structure,
-            "ID Card": application.id_card,
-            "Character Reference 1": application.character_reference_1,
-            "Character Reference 2": application.character_reference_2,
-            "Statutory Declaration": application.statdec,
-        }
-        template = "officer/review_new.html"
+    # ✅ Single document for BOTH new and continuing
+    documents = {
+        "Uploaded Documents (PDF)": application.documents_pdf
+    }
+
+    # You can still keep different templates if you want
+    template = (
+        "officer/review_continuing.html"
+        if application.is_continuing
+        else "officer/review_new.html"
+    )
 
     return render(request, template, {
         "application": application,
@@ -817,7 +793,6 @@ def view_review(request, pk):
         "reviews": reviews,
         "review_form": ApplicationReviewForm(),
     })
-
 
 
 try:

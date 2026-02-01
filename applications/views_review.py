@@ -53,29 +53,19 @@ def get_documents_for_application(application):
     Returns: (template_name, documents_list)
     documents_list is [(label, filefield_or_none), ...]
     """
-    if application.is_continuing:
-        return (
-            "applications/officer_continuing_profile.html",
-            [
-                ("Academic Transcript", getattr(application, "transcript", None)),
-                ("School Fee Structure", getattr(application, "school_fee_structure", None)),
-                ("Student ID Card", getattr(application, "id_card", None)),
-            ],
-        )
 
-    return (
-        "applications/officer_new_profile.html",
-        [
-            ("Grade 12 Certificate", getattr(application, "grade_12_certificate", None)),
-            ("Academic Transcript", getattr(application, "transcript", None)),
-            ("Acceptance Letter", getattr(application, "acceptance_letter", None)),
-            ("School Fee Structure", getattr(application, "school_fee_structure", None)),
-            ("Student ID Card", getattr(application, "id_card", None)),
-            ("Character Reference 1", getattr(application, "character_reference_1", None)),
-            ("Character Reference 2", getattr(application, "character_reference_2", None)),
-            ("Statutory Declaration", getattr(application, "statdec", None)),
-        ],
+    documents = [
+        ("Uploaded Documents (PDF)", getattr(application, "documents_pdf", None)),
+    ]
+
+    template = (
+        "applications/officer_continuing_profile.html"
+        if application.is_continuing
+        else "applications/officer_new_profile.html"
     )
+
+    return template, documents
+
 
 
 def map_review_status_to_application_status(review_status):
