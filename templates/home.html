@@ -48,7 +48,7 @@
         }
     }
 
-        .logo-slider {
+    .logo-slider {
         overflow: hidden;
         position: relative;
         width: 100%;
@@ -58,7 +58,6 @@
     }
     .logo-track {
         display: flex;
-        width: calc(200px * 25); /* 25 logos, each ~200px wide */
         animation: scroll-left 40s linear infinite;
     }
     .logo-item {
@@ -74,7 +73,7 @@
     }
     @keyframes scroll-left {
         0% { transform: translateX(0); }
-        100% { transform: translateX(-50%); } /* adjust for smooth looping */
+        100% { transform: translateX(-50%); } /* scroll half the width (because we duplicated) */
     }
 
     /* Pause on hover */
@@ -93,6 +92,7 @@
     }
 </style>
 {% endblock %}
+
 
 <!-- Hero Header -->
 <header class="hero-header text-center text-white">
@@ -166,6 +166,12 @@
     <h2 class="text-center text-secondary mb-4">Our Partner Institutions</h2>
     <div class="logo-slider">
         <div class="logo-track">
+            {% for i in 1|to:25 %}
+            <div class="logo-item">
+                <img src="{% static 'img/institutions/' %}{{ i }}.png" alt="Institution {{ i }}" class="img-fluid">
+            </div>
+            {% endfor %}
+            <!-- Duplicate logos for seamless loop -->
             {% for i in 1|to:25 %}
             <div class="logo-item">
                 <img src="{% static 'img/institutions/' %}{{ i }}.png" alt="Institution {{ i }}" class="img-fluid">
