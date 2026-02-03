@@ -47,6 +47,50 @@
             margin-bottom: 20px;
         }
     }
+
+        .logo-slider {
+        overflow: hidden;
+        position: relative;
+        width: 100%;
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 10px 0;
+    }
+    .logo-track {
+        display: flex;
+        width: calc(200px * 25); /* 25 logos, each ~200px wide */
+        animation: scroll-left 40s linear infinite;
+    }
+    .logo-item {
+        flex: 0 0 200px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+    }
+    .logo-item img {
+        max-height: 60px;
+        object-fit: contain;
+    }
+    @keyframes scroll-left {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); } /* adjust for smooth looping */
+    }
+
+    /* Pause on hover */
+    .logo-track:hover {
+        animation-play-state: paused;
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 768px) {
+        .logo-item {
+            flex: 0 0 120px;
+        }
+        .logo-item img {
+            max-height: 40px;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -115,6 +159,19 @@
         <button class="carousel-control-next" type="button" data-bs-target="#institutionCarousel" data-bs-slide="next">
             <span class="carousel-control-next-icon"></span>
         </button>
+    </div>
+</div>
+<!-- Partner Institutions Showcase -->
+<div class="container my-5">
+    <h2 class="text-center text-secondary mb-4">Our Partner Institutions</h2>
+    <div class="logo-slider">
+        <div class="logo-track">
+            {% for i in 1|to:25 %}
+            <div class="logo-item">
+                <img src="{% static 'img/institutions/' %}{{ i }}.png" alt="Institution {{ i }}" class="img-fluid">
+            </div>
+            {% endfor %}
+        </div>
     </div>
 </div>
 
