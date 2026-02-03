@@ -112,6 +112,7 @@ def logout_view(request):
         return redirect("applications:login")
 # --- Home ---
 
+
 def home_view(request):
     total_applicants = Application.objects.count()
     total_awarded = Application.objects.filter(status=Application.STATUS_APPROVED).count()
@@ -126,10 +127,14 @@ def home_view(request):
         .order_by('-applicants')
     )
 
+    # Add a simple range for logos 1.png → 25.png
+    logos = range(1, 26)
+
     return render(request, 'home.html', {
         'total_applicants': total_applicants,
         'total_awarded': total_awarded,
         'institution_stats': institution_stats,
+        'logos': logos,   # <-- pass to template
     })
 
 

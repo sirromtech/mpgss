@@ -166,18 +166,13 @@
     <h2 class="text-center text-secondary mb-4">Our Partner Institutions</h2>
     <div class="logo-slider">
         <div class="logo-track">
-            {% for i in 1|to:25 %}
-            <div class="logo-item">
-                <img src="{% static 'img/institutions/' %}{{ i }}.png" alt="Institution {{ i }}" class="img-fluid">
-            </div>
-            {% endfor %}
-            <!-- Duplicate logos for seamless loop -->
-            {% for i in 1|to:25 %}
+            {% for i in logos %}
             <div class="logo-item">
                 <img src="{% static 'img/institutions/' %}{{ i }}.png" alt="Institution {{ i }}" class="img-fluid">
             </div>
             {% endfor %}
         </div>
+
     </div>
 </div>
 
