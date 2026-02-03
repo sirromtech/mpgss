@@ -211,6 +211,7 @@ class Application(models.Model):
         null=True,
         help_text="Upload all required documents as ONE PDF"
     )
+    
 
     # Parent/student employment info (already present)
     parent_employed = models.BooleanField(default=False)
