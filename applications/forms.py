@@ -42,7 +42,11 @@ class ApplicantProfileForm(forms.ModelForm):
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'surname': forms.TextInput(attrs={'class': 'form-control'}),
             'gender': forms.Select(attrs={'class': 'form-control'}),
-            'date_of_birth': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'date_of_birth': forms.SelectDateWidget(
+                years=range(1968, 2050),  # adjust range for DOB
+                empty_label=("Year", "Month", "Day"),
+                attrs={'class': 'form-select'}  # Bootstrap styling
+            ),
             'phone_number': forms.TextInput(attrs={'class': 'form-control'}),
             'nid_number': forms.TextInput(attrs={'class': 'form-control'}),
             'grade12_certificate_number': forms.TextInput(attrs={'class': 'form-control'}),
