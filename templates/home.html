@@ -1,109 +1,102 @@
 {% extends 'base.html' %}
-{% block title %}Gerson Solulu Scholarship Scheme{% endblock %}
 {% load static %}
-{% block content %}
+{% block title %}Gerson Solulu Scholarship Scheme{% endblock %}
+
 {% block extra_css %}
 <style>
-    /* Mobile-first hero */
-    .hero-header {
-        position: relative;
-        background: url("{% static 'img/header.webp' %}") no-repeat center center;
-        background-size: cover;
-        padding: 60px 20px; /* reduced padding for mobile */
-        color: #fff;
-    }
-    .hero-header .overlay {
-        position: absolute;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: rgba(0,0,0,0.5);
-        z-index: 1;
-    }
-    .hero-header .container {
-        position: relative;
-        z-index: 2;
-    }
+  /* Mobile-first hero */
+  .hero-header {
+    position: relative;
+    background: url("{% static 'img/header.webp' %}") no-repeat center center;
+    background-size: cover;
+    padding: 60px 20px;
+    color: #fff;
+  }
+  .hero-header .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1;
+  }
+  .hero-header .container {
+    position: relative;
+    z-index: 2;
+  }
 
-    /* Localized PNG motif accent */
-    .btn-png {
-        background: linear-gradient(45deg, #006400, #FFD700); /* green & gold */
-        border: none;
-        font-weight: bold;
-    }
-    .btn-png:hover {
-        background: linear-gradient(45deg, #FFD700, #006400);
-        color: #000;
-    }
+  /* Localized PNG motif accent */
+  .btn-png {
+    background: linear-gradient(45deg, #006400, #FFD700);
+    border: none;
+    font-weight: bold;
+  }
+  .btn-png:hover {
+    background: linear-gradient(45deg, #FFD700, #006400);
+    color: #000;
+  }
 
-    /* Motif background strip */
-    .motif-strip {
-        background: url("{% static 'img/png_motif.png' %}") repeat-x;
-        height: 20px;
-    }
+  /* Motif background strip */
+  .motif-strip {
+    background: url("{% static 'img/png_motif.png' %}") repeat-x;
+    height: 20px;
+  }
 
-    /* Stats stack vertically on mobile */
-    @media (max-width: 768px) {
-        .stat-card {
-            margin-bottom: 20px;
-        }
-    }
+  /* Stats stack vertically on mobile */
+  @media (max-width: 768px) {
+    .stat-card { margin-bottom: 20px; }
+  }
 
-    .logo-slider {
-        overflow: hidden;
-        position: relative;
-        width: 100%;
-        background: #f8f9fa;
-        border-radius: 8px;
-        padding: 10px 0;
-    }
-    .logo-track {
-        display: flex;
-        animation: scroll-left 40s linear infinite;
-    }
-    .logo-item {
-        flex: 0 0 200px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 10px;
-    }
-    .logo-item img {
-        max-height: 60px;
-        object-fit: contain;
-    }
-    @keyframes scroll-left {
-        0% { transform: translateX(0); }
-        100% { transform: translateX(-50%); } /* scroll half the width (because we duplicated) */
-    }
+  /* Logo slider */
+  .logo-slider {
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 10px 0;
+  }
+  .logo-track {
+    display: flex;
+    width: max-content;
+    animation: scroll-left 40s linear infinite;
+  }
+  .logo-item {
+    flex: 0 0 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+  }
+  .logo-item img {
+    max-height: 60px;
+    object-fit: contain;
+  }
+  @keyframes scroll-left {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .logo-slider:hover .logo-track {
+    animation-play-state: paused;
+  }
 
-    /* Pause on hover */
-    .logo-track:hover {
-        animation-play-state: paused;
-    }
-
-    /* Mobile adjustments */
-    @media (max-width: 768px) {
-        .logo-item {
-            flex: 0 0 120px;
-        }
-        .logo-item img {
-            max-height: 40px;
-        }
-    }
+  @media (max-width: 768px) {
+    .logo-item { flex: 0 0 120px; }
+    .logo-item img { max-height: 40px; }
+  }
 </style>
 {% endblock %}
 
+{% block content %}
 
 <!-- Hero Header -->
 <header class="hero-header text-center text-white">
-    <div class="overlay"></div>
-    <div class="container">
-        <img src="{% static 'img/logo.png' %}" alt="GSSS Logo" class="mb-3" style="max-height:60px;">
-        <h1 class="fw-bold">Empowering PNG Students</h1>
-        <p class="lead">Fairness, transparency, and opportunity for higher education.</p>
-        <a href="{% url 'applications:apply' %}" class="btn btn-png btn-lg mt-3 me-2">Apply Now</a>
-        <a href="{% url 'applications:signup' %}" class="btn btn-outline-light btn-lg mt-3">Register</a>
-    </div>
+  <div class="overlay"></div>
+  <div class="container">
+    <img src="{% static 'img/logo.png' %}" alt="GSSS Logo" class="mb-3" style="max-height:60px;">
+    <h1 class="fw-bold">Empowering PNG Students</h1>
+    <p class="lead">Fairness, transparency, and opportunity for higher education.</p>
+    <a href="{% url 'applications:apply' %}" class="btn btn-png btn-lg mt-3 me-2">Apply Now</a>
+    <a href="{% url 'applications:signup' %}" class="btn btn-outline-light btn-lg mt-3">Register</a>
+  </div>
 </header>
 
 <!-- Motif strip accent -->
@@ -111,115 +104,140 @@
 
 <!-- Stats Section -->
 <div class="container my-5">
-    <div class="row text-center">
-        <div class="col-md-4 stat-card">
-            <div class="bg-light p-4 rounded shadow-sm">
-                <i class="bi bi-people-fill text-primary fs-2"></i>
-                <h3 class="text-primary">{{ total_applicants }}</h3>
-                <p class="text-muted">Applicants</p>
-            </div>
-        </div>
-        <div class="col-md-4 stat-card">
-            <div class="bg-light p-4 rounded shadow-sm">
-                <i class="bi bi-award-fill text-success fs-2"></i>
-                <h3 class="text-success">{{ total_awarded }}</h3>
-                <p class="text-muted">Awarded</p>
-            </div>
-        </div>
-        <div class="col-md-4 stat-card">
-            <div class="bg-light p-4 rounded shadow-sm">
-                <i class="bi bi-building text-warning fs-2"></i>
-                <h3 class="text-warning">{{ institution_stats|length }}</h3>
-                <p class="text-muted">Institutions</p>
-            </div>
-        </div>
+  <div class="row text-center">
+    <div class="col-md-4 stat-card">
+      <div class="bg-light p-4 rounded shadow-sm">
+        <i class="bi bi-people-fill text-primary fs-2"></i>
+        <h3 class="text-primary">{{ total_applicants }}</h3>
+        <p class="text-muted mb-0">Applicants</p>
+      </div>
     </div>
+
+    <div class="col-md-4 stat-card">
+      <div class="bg-light p-4 rounded shadow-sm">
+        <i class="bi bi-award-fill text-success fs-2"></i>
+        <h3 class="text-success">{{ total_awarded }}</h3>
+        <p class="text-muted mb-0">Awarded</p>
+      </div>
+    </div>
+
+    <div class="col-md-4 stat-card">
+      <div class="bg-light p-4 rounded shadow-sm">
+        <i class="bi bi-building text-warning fs-2"></i>
+        <h3 class="text-warning">{{ institution_stats|length }}</h3>
+        <p class="text-muted mb-0">Institutions</p>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Institutions Carousel -->
 <div class="container mb-5">
-    <h2 class="text-center text-secondary mb-4">Top Institutions</h2>
-    <div id="institutionCarousel" class="carousel slide" data-bs-ride="carousel">
-        <div class="carousel-inner">
-            {% for stat in institution_stats|slice:":3" %}
-            <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                <div class="bg-light p-4 rounded shadow-sm text-center">
-                    <h5 class="text-dark">{{ stat.institution_name }}</h5>
-                    <h3 class="text-primary">{{ stat.applicants }}</h3>
-                    <p class="text-muted">Applicants</p>
-                    <h4 class="text-success">{{ stat.awarded }}</h4>
-                    <p class="text-muted">Awarded</p>
-                </div>
-            </div>
-            {% endfor %}
+  <h2 class="text-center text-secondary mb-4">Top Institutions</h2>
+
+  <div id="institutionCarousel" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-inner">
+      {% for stat in institution_stats|slice:":3" %}
+      <div class="carousel-item {% if forloop.first %}active{% endif %}">
+        <div class="bg-light p-4 rounded shadow-sm text-center">
+          <h5 class="text-dark">{{ stat.institution_name }}</h5>
+          <h3 class="text-primary">{{ stat.applicants }}</h3>
+          <p class="text-muted">Applicants</p>
+          <h4 class="text-success">{{ stat.awarded }}</h4>
+          <p class="text-muted mb-0">Awarded</p>
         </div>
-        <button class="carousel-control-prev" type="button" data-bs-target="#institutionCarousel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon"></span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#institutionCarousel" data-bs-slide="next">
-            <span class="carousel-control-next-icon"></span>
-        </button>
+      </div>
+      {% empty %}
+      <div class="carousel-item active">
+        <div class="bg-light p-4 rounded shadow-sm text-center">
+          <h5 class="text-dark">No institution stats yet</h5>
+          <p class="text-muted mb-0">Apply to start seeing results here.</p>
+        </div>
+      </div>
+      {% endfor %}
     </div>
+
+    <button class="carousel-control-prev" type="button" data-bs-target="#institutionCarousel" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#institutionCarousel" data-bs-slide="next">
+      <span class="carousel-control-next-icon"></span>
+    </button>
+  </div>
 </div>
+
 <!-- Partner Institutions Showcase -->
 <div class="container my-5">
-    <h2 class="text-center text-secondary mb-4">Our Partner Institutions</h2>
-    <div class="logo-slider">
-        <div class="logo-track">
-            {% for i in logos %}
-            <div class="logo-item">
-                <img src="{% static 'img/institutions/' %}{{ i }}.png" alt="Institution {{ i }}" class="img-fluid">
-            </div>
-            {% endfor %}
-        </div>
+  <h2 class="text-center text-secondary mb-4">Our Partner Institutions</h2>
 
+  <div class="logo-slider">
+    <div class="logo-track">
+      {# First set #}
+      {% for i in logos %}
+      <div class="logo-item">
+        <img src="{% static 'img/institutions/' %}{{ i }}.png" alt="Institution {{ i }}" class="img-fluid">
+      </div>
+      {% endfor %}
+
+      {# Duplicate set for smooth scrolling #}
+      {% for i in logos %}
+      <div class="logo-item">
+        <img src="{% static 'img/institutions/' %}{{ i }}.png" alt="Institution {{ i }}" class="img-fluid">
+      </div>
+      {% endfor %}
     </div>
+  </div>
 </div>
 
 <!-- About Section -->
 <div class="container mb-5">
-    <div class="bg-white p-4 rounded shadow-sm">
-        <h2 class="text-center text-secondary mb-3">About the Scheme</h2>
-        <ul class="list-unstyled text-muted">
-            <li><i class="bi bi-check-circle text-success"></i> Supporting students with academic potential and financial need</li>
-            <li><i class="bi bi-check-circle text-success"></i> Transparent and fair application process</li>
-            <li><i class="bi bi-check-circle text-success"></i> Partnerships with top institutions across PNG</li>
-        </ul>
-    </div>
+  <div class="bg-white p-4 rounded shadow-sm">
+    <h2 class="text-center text-secondary mb-3">About the Scheme</h2>
+    <ul class="list-unstyled text-muted mb-0">
+      <li><i class="bi bi-check-circle text-success"></i> Supporting students with academic potential and financial need</li>
+      <li><i class="bi bi-check-circle text-success"></i> Transparent and fair application process</li>
+      <li><i class="bi bi-check-circle text-success"></i> Partnerships with top institutions across PNG</li>
+    </ul>
+  </div>
 </div>
 
-    <!-- 💬 Testimonials Section -->
-    <div class="row mb-5">
-        <div class="col-md-10 mx-auto">
-            <h2 class="text-center text-secondary mb-4">What Our Scholars Say</h2>
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-body">
-                            <p class="card-text">“This scholarship changed my life. I’m now studying education at UPNG and helping my community.”</p>
-                            <h3 class="footer-card">Maria K - Morobe Province</h3>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-body">
-                            <p class="card-text">“The application process was smooth, and the support from officers was incredible. Highly recommended.”</p>
-                            <h3 class="footer-card">James T - Menyamya</h3>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-body">
-                            <p class="card-text">“Thanks to GSSS, I’m now pursuing my dream in business studies. The AI screening made it fast and fair.”</p>
-                            <h3 class="footer-card">Lydia N - Wantoat</h3>
-                        </div>
-                    </div>
-                </div>
+<!-- Testimonials Section -->
+<div class="container mb-5">
+  <div class="row">
+    <div class="col-md-10 mx-auto">
+      <h2 class="text-center text-secondary mb-4">What Our Scholars Say</h2>
+
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <p class="card-text">“This scholarship changed my life. I’m now studying education at UPNG and helping my community.”</p>
+              <h6 class="mb-0">Maria K - Morobe Province</h6>
             </div>
+          </div>
         </div>
+
+        <div class="col-md-4">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <p class="card-text">“The application process was smooth, and the support from officers was incredible. Highly recommended.”</p>
+              <h6 class="mb-0">James T - Menyamya</h6>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <p class="card-text">“Thanks to GSSS, I’m now pursuing my dream in business studies. The AI screening made it fast and fair.”</p>
+              <h6 class="mb-0">Lydia N - Wantoat</h6>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
+  </div>
 </div>
 
 {% endblock %}

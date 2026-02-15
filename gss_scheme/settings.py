@@ -6,6 +6,10 @@ import ssl
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
+PROJECT_DIR = Path(__file__).resolve().parent  # folder containing settings.py
+DATA_DIR = PROJECT_DIR / "data"
+
 # Initialise environ
 env = environ.Env()
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))  # optional for local dev
