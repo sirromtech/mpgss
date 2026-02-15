@@ -7,8 +7,11 @@ import ssl
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-PROJECT_DIR = Path(__file__).resolve().parent  # folder containing settings.py
+# Data folder lives where apps are (inside the project package)
+PROJECT_DIR = Path(__file__).resolve().parent
 DATA_DIR = PROJECT_DIR / "data"
+
+STUDENTS_2025_JSON_PATH = DATA_DIR / "students_2025.json"
 
 # Initialise environ
 env = environ.Env()
