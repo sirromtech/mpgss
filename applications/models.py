@@ -487,3 +487,27 @@ class PolicyPage(models.Model):
 
     def __str__(self):
         return self.title
+
+# new model - 16/2/26 - migrate 2025 data)
+
+
+class EligibleStudent2025(models.Model):
+    first_name = models.CharField(max_length=120)
+    surname = models.CharField(max_length=120)
+    gender = models.CharField(max_length=10, blank=True)
+    institution = models.CharField(max_length=255)
+    course = models.CharField(max_length=255, blank=True)
+    tuition_fee = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    district = models.CharField(max_length=120, blank=True)
+    year_of_study = models.CharField(max_length=50, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["first_name", "surname"]),
+            models.Index(fields=["institution"]),
+        ]
+
+    def __str__(self):
+        return f"{self.first_name} {self.surname} - {self.institution}"
