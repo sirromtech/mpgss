@@ -50,7 +50,7 @@ from django.utils.encoding import force_bytes
 import requests
 from .forms import SignupForm
 from .utils import trigger_swiftmassive_event
-from aaplications.models import EligibleStudent2025
+from applications.models import EligibleStudent2025
 
 logger = logging.getLogger(__name__)
 
