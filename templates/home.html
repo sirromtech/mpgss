@@ -104,32 +104,43 @@
 
 <!-- Stats Section -->
 <div class="container my-5">
-  <div class="row text-center">
-    <div class="col-md-4 stat-card">
-      <div class="bg-light p-4 rounded shadow-sm">
+  <div class="row text-center g-3">
+
+    <div class="col-6 col-md-3 stat-card">
+      <div class="bg-light p-4 rounded shadow-sm h-100">
+        <i class="bi bi-person-badge text-info fs-2"></i>
+        <h3 class="text-info">{{ total_students }}</h3>
+        <p class="text-muted mb-0">Eligible Students (2025)</p>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-3 stat-card">
+      <div class="bg-light p-4 rounded shadow-sm h-100">
         <i class="bi bi-people-fill text-primary fs-2"></i>
         <h3 class="text-primary">{{ total_applicants }}</h3>
         <p class="text-muted mb-0">Applicants</p>
       </div>
     </div>
 
-    <div class="col-md-4 stat-card">
-      <div class="bg-light p-4 rounded shadow-sm">
+    <div class="col-6 col-md-3 stat-card">
+      <div class="bg-light p-4 rounded shadow-sm h-100">
         <i class="bi bi-award-fill text-success fs-2"></i>
         <h3 class="text-success">{{ total_awarded }}</h3>
         <p class="text-muted mb-0">Awarded</p>
       </div>
     </div>
 
-    <div class="col-md-4 stat-card">
-      <div class="bg-light p-4 rounded shadow-sm">
+    <div class="col-6 col-md-3 stat-card">
+      <div class="bg-light p-4 rounded shadow-sm h-100">
         <i class="bi bi-building text-warning fs-2"></i>
         <h3 class="text-warning">{{ institution_stats|length }}</h3>
         <p class="text-muted mb-0">Institutions</p>
       </div>
     </div>
+
   </div>
 </div>
+
 
 <!-- Institutions Carousel -->
 <div class="container mb-5">
