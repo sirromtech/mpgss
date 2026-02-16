@@ -50,7 +50,6 @@ from django.utils.encoding import force_bytes
 import requests
 from .forms import SignupForm
 from .utils import trigger_swiftmassive_event
-from applications.models import EligibleStudent2025
 
 logger = logging.getLogger(__name__)
 
@@ -113,14 +112,7 @@ def logout_view(request):
         return redirect("applications:login")
 # --- Home ---
 
-
 def home_view(request):
-    # Avoid crashing if table isn't migrated yet
-    try:
-        total_students = EligibleStudent2025.objects.count()
-    except ProgrammingError:
-        total_students = 0
-
     total_applicants = Application.objects.count()
     total_awarded = Application.objects.filter(status=Application.STATUS_APPROVED).count()
 
@@ -134,14 +126,10 @@ def home_view(request):
         .order_by('-applicants')
     )
 
-    logos = range(1, 26)
-
     return render(request, 'home.html', {
-        'total_students': total_students,
         'total_applicants': total_applicants,
         'total_awarded': total_awarded,
         'institution_stats': institution_stats,
-        'logos': logos,
     })
 
 
