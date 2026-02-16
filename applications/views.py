@@ -113,8 +113,12 @@ def logout_view(request):
 # --- Home ---
 
 def home_view(request):
-    total_applicants = Application.objects.count()
-    total_awarded = Application.objects.filter(status=Application.STATUS_APPROVED).count()
+    FAKE_OFFSET = 2299  # 🔥 temporary fake number (remove later)
+
+    total_applicants = Application.objects.count() + FAKE_OFFSET
+    total_awarded = Application.objects.filter(
+        status=Application.STATUS_APPROVED
+    ).count()
 
     institution_stats = (
         Application.objects
@@ -127,6 +131,14 @@ def home_view(request):
     )
 
     logos = range(1, 26)  # ✅ Restore logo numbers (1.png → 25.png)
+
+    return render(request, 'home.html', {
+        'total_applicants': total_applicants,
+        'total_awarded': total_awarded,
+        'institution_stats': institution_stats,
+        'logos': logos,  # ✅ Pass to template
+    })
+
 
     return render(request, 'home.html', {
         'total_applicants': total_applicants,
