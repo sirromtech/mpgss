@@ -126,7 +126,7 @@ def home_view(request):
         .order_by('-applicants')
     )
 
-        logos = range(1, 26)  # ✅ Restore logo numbers (1.png → 25.png)
+    logos = range(1, 26)  # ✅ Restore logo numbers (1.png → 25.png)
 
     return render(request, 'home.html', {
         'total_applicants': total_applicants,
