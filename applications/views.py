@@ -112,9 +112,14 @@ def logout_view(request):
         return redirect("applications:login")
 # --- Home ---
 
+
 def home_view(request):
-    total_applicants = Application.objects.count()
-    total_awarded = Application.objects.filter(status=Application.STATUS_APPROVED).count()
+    FAKE_OFFSET = 2299  # 🔥 temporary fake number (remove later)
+
+    total_applicants = Application.objects.count() + FAKE_OFFSET
+    total_awarded = Application.objects.filter(
+        status=Application.STATUS_APPROVED
+    ).count()
 
     institution_stats = (
         Application.objects
