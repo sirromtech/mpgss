@@ -260,10 +260,10 @@
       <div class="col-md-4">
         <label for="status" class="form-label">Review Status</label>
         <select name="status" id="status" class="form-select">
-          <option value="pending" {% if default_status == 'pending' %}selected{% endif %}>Pending</option>
-          <option value="approved" {% if default_status == 'approved' %}selected{% endif %}>Approved</option>
-          <option value="rejected" {% if default_status == 'rejected' %}selected{% endif %}>Rejected</option>
-          <option value="needs_info" {% if default_status == 'needs_info' %}selected{% endif %}>Needs Info</option>
+          <option value="pending" {% if default_status == 'PENDING' %}selected{% endif %}>Pending</option>
+          <option value="approved" {% if default_status == 'APPROVED' %}selected{% endif %}>Approved</option>
+          <option value="rejected" {% if default_status == 'REJECTED' %}selected{% endif %}>Rejected</option>
+          <option value="needs_info" {% if default_status == 'NEEDS_INFO' %}selected{% endif %}>Needs Info</option>
         </select>
       </div>
       <div class="col-md-8">
