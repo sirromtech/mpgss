@@ -173,35 +173,35 @@ def signup_view(request):
         form = SignupForm()
     return render(request, 'applications/signup.html', {'crispy_form': form})
 
-def send_swiftmissive_event(event_name, email, variables=None):
-    """
-    Trigger a SwiftMissive event with optional variables.
-    """
-    url = "https://ghz0jve3kj.execute-api.us-east-1.amazonaws.com/events"
+#def send_swiftmissive_event(event_name, email, variables=None):
+#    """
+#    Trigger a SwiftMissive event with optional variables.
+#    """
+#    url = "https://ghz0jve3kj.execute-api.us-east-1.amazonaws.com/events"
+#
+#    event = {
+#        "name": event_name,
+#        "email": email,
+#    }
+#    if variables:
+#        event.update(variables)
 
-    event = {
-        "name": event_name,
-        "email": email,
-    }
-    if variables:
-        event.update(variables)
+#    payload = {"events": [event]}
+#    headers = {
+#        "x-api-key": settings.SWIFTMISSIVE_API_KEY,
+#        "Content-Type": "application/json"
+#    }
 
-    payload = {"events": [event]}
-    headers = {
-        "x-api-key": settings.SWIFTMISSIVE_API_KEY,
-        "Content-Type": "application/json"
-    }
-
-    response = requests.post(url, json=payload, headers=headers)
+#    response = requests.post(url, json=payload, headers=headers)
 
     # Debug logging
-    print("=== SwiftMissive Debug ===")
-    print("Payload:", payload)
-    print("Response Code:", response.status_code)
-    print("Response Body:", response.text)
-    print("==========================")
+#    print("=== SwiftMissive Debug ===")
+#    print("Payload:", payload)
+#    print("Response Code:", response.status_code)
+#    print("Response Body:", response.text)
+#    print("==========================")
 
-    return response.status_code, response.text
+#    return response.status_code, response.text
 
 
 

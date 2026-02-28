@@ -67,7 +67,6 @@ def get_documents_for_application(application):
     return template, documents
 
 
-
 def map_review_status_to_application_status(review_status):
     """
     Adjust these mappings to match your status constants.

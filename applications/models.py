@@ -461,16 +461,16 @@ class ApplicationReview(models.Model):
         return f"Review by {reviewer_name} on Application {self.application.id} [{self.get_status_display()}]"
 
 
-@receiver(post_save, sender=ApplicationReview)
-def application_review_post_save(sender, instance, created, **kwargs):
-    try:
-        # TODO: enqueue notification task, e.g. send_application_status_email.delay(instance.pk)
-        pass
-    except Exception as exc:
-        # Do not silently swallow — at minimum log
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.exception("Error in application_review_post_save: %s", exc)
+#@receiver(post_save, sender=ApplicationReview)
+#def application_review_post_save(sender, instance, created, **kwargs):
+#    try:
+#        # TODO: enqueue notification task, e.g. send_application_status_email.delay(instance.pk)
+#        pass
+#    except Exception as exc:
+#        # Do not silently swallow — at minimum log
+#        import logging
+#        logger = logging.getLogger(__name__)
+#        logger.exception("Error in application_review_post_save: %s", exc)
 
 
 class FAQ(models.Model):
