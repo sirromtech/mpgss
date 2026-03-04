@@ -567,8 +567,25 @@ def export_applications_csv(request):
     if status not in allowed_statuses:
         return HttpResponse(f"Invalid status '{status}'. Use APPROVED / REJECTED / PENDING.", status=400)
 
+    # ✅ DEFINE qs FIRST
+    qs = Application.objects.select_related(
+        "applicant__user", "institution", "course"
+    ).all()
+
+    # optional search
+    if q:
+        qs = qs.filter(
+            Q(applicant__user__first_name__icontains=q) |
+            Q(applicant__user__last_name__icontains=q) |
+            Q(applicant__user__email__icontains=q) |
+            Q(institution__name__icontains=q) |
+            Q(course__name__icontains=q)
+        )
+
+    # ✅ apply required status filter
     qs = qs.filter(status=status)
 
+    # optional institution filter
     if institution_id:
         qs = qs.filter(institution_id=institution_id)
 
