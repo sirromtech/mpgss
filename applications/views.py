@@ -633,7 +633,7 @@ def export_applications_csv(request):
                 inst_name,
                 app.course.name if app.course else '',
                 format_currency(tuition),
-                getattr(app, 'district', '') or '',
+                getattr(app, 'father_district', '') or '',
                 getattr(app, 'year_of_study', '') or '',
             ])
 
